@@ -1,4 +1,4 @@
-# HLTV client - WIP
+# HLTV client
 
 **A crate for fetching and parsing esports data from [HLTV.org](https://www.hltv.org).**
 
