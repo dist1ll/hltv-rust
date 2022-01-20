@@ -10,9 +10,9 @@ Might extend functionality to support async variants.
 // Example
 let q: Request<Match> = hltv::results()
                  .stars(1)
-			     .date(d1, d2)
-			     .type(EventType::LAN)
-			     .build()
+                 .date(d1, d2)
+                 .type(EventType::LAN)
+                 .build()
 
 let result = q.fetch() // type: Result<Vec<Match>, hltv::Error>
 ```
