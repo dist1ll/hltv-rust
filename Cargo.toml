@@ -3,7 +3,7 @@ name = "hltv"
 version = "0.1.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
-description = "An API to fetch and parse data from HLTV.org"
+description = "A client to fetch and parse data from HLTV.org"
 homepage = "https://github.com/m2q/hltv-rust"
 repository = "https://github.com/m2q/hltv-rust"
 documentation = "https://github.com/m2q/hltv-rust"
@@ -12,3 +12,5 @@ keywords = ["hltv", "csgo", "api", "esports"]
 categories = ["api-bindings"]
 
 [dependencies]
+attohttpc = "0.18.0"
+chrono = "0.4.19"
