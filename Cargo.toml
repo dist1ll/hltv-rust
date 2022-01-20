@@ -12,5 +12,6 @@ keywords = ["hltv", "csgo", "api", "esports"]
 categories = ["api-bindings"]
 
 [dependencies]
-attohttpc = "0.18.0"
-chrono = "0.4.19"
+attohttpc = "0.18"
+chrono = "0.4"
+tl = "0.5"

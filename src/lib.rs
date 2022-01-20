@@ -1,6 +1,46 @@
-#![allow(warnings)]
+#![allow(unused)]
+
+use std::marker::PhantomData;
 
 use chrono::{DateTime, Utc};
+use tl::ParserOptions;
+
+pub enum Error {
+    /// Any non-200 status code.
+    HTTPError,
+    /// HTML document is invalid. Refer to `tl::parse`.
+    ParseError,
+    /// Parsed document can't be converted into target type.
+    ConversionError,
+}
+
+
+pub struct Request<'a, T> where T: TryFrom<tl::VDom<'a>>{
+    pub url: String,
+    pub _m: PhantomData<&'a T>,
+}
+
+impl<'a, T> Request<'a, T> where T: TryFrom<tl::VDom<'a>> {
+    /// Fetches HTML resource, parses DOM, and converts into type T
+    /// type T. Returns an error if the resource is not reachable.
+    pub fn fetch(&self) -> Result<T, crate::Error> {
+        Err(crate::Error::HTTPError)
+    }
+}
+
+impl<'a> TryFrom<tl::VDom<'a>> for Match {
+    type Error = crate::Error;
+    fn try_from(value: tl::VDom<'a>) -> Result<Self, Self::Error> {
+        Err(Error::ConversionError)
+    }
+}
+
+impl<'a> TryFrom<tl::VDom<'a>> for Player {
+    type Error = crate::Error;
+    fn try_from(value: tl::VDom<'a>) -> Result<Self, Self::Error> {
+        Err(Error::ConversionError)
+    }
+}
 
 pub enum EventType {
     LAN,
@@ -99,6 +139,19 @@ pub struct MapScore {
     pub map: String,
     pub team1_rounds: u64,
     pub team2_rounds: u64,
+}
+
+pub struct Stats {
+    /// Total kills.
+    pub kills: u64,
+    /// Total deaths.
+    pub deaths: u64,
+    /// Average damage per round.
+    pub adr: f64,
+    /// Percentage of rounds with either kill, assisst, support or trade.
+    pub kast: f64,
+    /// HLTV 2.0 rating.
+    pub rating: f64,
 }
 
 /// This is the map score of a match. Examples are: 1-0, 2-1, 1-2, 3-0, etc.
