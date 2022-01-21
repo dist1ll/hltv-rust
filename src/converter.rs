@@ -1,5 +1,5 @@
 /*!
-Definitions for converting raw HTML docs to hltv data types.
+Methods to convert HTML to hltv data types.
 
 This module contains all implemenations for converting HTML documents (type [`tl::VDom`])
 to the types contained in the `data` module. Correct conversion is dependent on the HTML
@@ -9,3 +9,22 @@ site.
 If the conversion breaks at any point in the future, feel free to create an issue on the
 GitHub repository or submit a pull request.
 */
+
+use crate::data::*;
+use crate::Error;
+
+impl<'a> TryFrom<tl::VDom<'a>> for Match {
+    type Error = crate::Error;
+    fn try_from(value: tl::VDom<'a>) -> Result<Self, Self::Error> {
+        Err(Error::ConversionError)
+    }
+}
+
+impl<'a> TryFrom<tl::VDom<'a>> for Player {
+    type Error = crate::Error;
+    fn try_from(value: tl::VDom<'a>) -> Result<Self, Self::Error> {
+        Err(Error::ConversionError)
+    }
+}
+
+
