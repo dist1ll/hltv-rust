@@ -3,7 +3,7 @@
 
 This crate allows you to fetch and parse upcoming matches, results,
 event information, player performance. This crate uses blocking calls via [`attohttpc`]
-and parses the HTML document with [`tl`]. 
+and parses the HTML document with [`tl`].
 
 ## Examples
 
@@ -20,20 +20,21 @@ let result = q.fetch() // type: Result<Vec<Match>, hltv::Error>
 
 ## Getting more detailed information
 
-This API mimics the way you discover information on HLTV. Summary pages (like [HLTV Matches](https://www.hltv.org/matches)) 
-contains less information in the HTML document than the detailed match-specific page. 
+This API mimics the way you discover information on HLTV. Summary pages (like [HLTV Matches](https://www.hltv.org/matches))
+contains less information in the HTML document than the detailed match-specific page.
 
-```rust 
+```rust
 /// Example
 ```
 
 */
-use std::marker::PhantomData;
 use chrono::{DateTime, Utc};
+use std::marker::PhantomData;
 use tl::ParserOptions;
 
 pub mod converter;
 
+/// Errors that happen during request, parse or conversion of data.
 pub enum Error {
     /// Any non-200 status code.
     HTTPError,
@@ -43,12 +44,27 @@ pub enum Error {
     ConversionError,
 }
 
-pub struct Request<'a, T> where T: TryFrom<tl::VDom<'a>>{
-    pub url: String,
-    pub _m: PhantomData<&'a T>,
+/// A reusable request object, that fetches, parses and converts HLTV data
+/// to the correct type.
+pub struct Request<'a, T>
+where
+    T: TryFrom<tl::VDom<'a>>,
+{
+    url: String,
+    _m: PhantomData<&'a T>,
 }
 
-impl<'a, T> Request<'a, T> where T: TryFrom<tl::VDom<'a>> {
+impl<'a, T> Request<'a, T>
+where
+    T: TryFrom<tl::VDom<'a>>,
+{
+    /// Creates a new request object with given url and conversion type.
+    pub fn new(url: String) -> Request<'a, T> {
+        Request::<'a, T> {
+            url,
+            _m: PhantomData,
+        }
+    }
     /// Fetches HTML resource, parses DOM, and converts into type T.
     /// Returns an error if the resource is not reachable.
     /// If you want to create a custom data structure that can be fetched
@@ -72,18 +88,20 @@ impl<'a> TryFrom<tl::VDom<'a>> for Player {
     }
 }
 
+/// Type of event. At this moment either LAN or online.
 pub enum EventType {
     LAN,
     Online,
 }
 
+/// Best-of-X format of a match. Since there are 7 maps in the CSGO map pool,
+/// the maximum is Bo7.
 pub enum MatchFormat {
     Bo1,
     Bo3,
     Bo5,
     Bo7,
 }
-
 
 /// Basic player information.
 pub struct Player {
@@ -107,8 +125,8 @@ pub struct Event {
     pub name: String,
 }
 
-/// Contains detailed information about an event. Corresponds to data found on HLTV's event
-/// page.
+/// Contains detailed information about an event. Corresponds to data found on [HLTV's event
+/// page](https://www.hltv.org/events/6345/blast-premier-spring-final-2022).
 pub struct EventDetails {
     /// HLTV-associated ID (found in the URL of the event page).
     pub id: u64,
@@ -120,7 +138,6 @@ pub struct EventDetails {
     pub end_date: DateTime<Utc>,
     /// Price pool of the event. Can be a USD figure, or guaranteed spots in another tournament.
     pub price_pool: String,
-
 }
 
 /// Contains extensive information about a team.
@@ -133,21 +150,28 @@ pub struct TeamDetails {
 /// Contains a summary of match data.
 pub struct Match {
     pub id: u64,
+    /// First team of the mach, according to HLTV's display order
     pub team1: Option<String>,
+    /// Second team of the mach, according to HLTV's display order
     pub team2: Option<String>,
     /// Name of the event.
     pub event: String,
+    /// Format of a match. For example, if the format is [`Bo1`][MatchFormat::Bo1],
+    /// then only one map is played and the result is either a `1-0` or `0-1`.
     pub format: MatchFormat,
+    /// Result of a match. If the match has not concluded, the result is [`None`].
     pub result: Option<MatchResult>,
-
     /// Time when an upcoming match is supposed to start. If the match is finished,
     /// this date is the finish time (according to HLTV).
     pub date: DateTime<Utc>,
+    /// Number of HLTV stars given to the match. Stars are a measure of match prestige.
+    /// The exact meaning is defined
+    /// [here](https://www.hltv.org/forums/threads/931435/what-are-these-stars-by-the-matches#r12178822).
     pub stars: u64,
 }
 
-/// Contains detailed information about a match. Corresponds to data found on HLTV's
-/// match page.
+/// Contains detailed information about a match. Corresponds to data found on [HLTV's
+/// match page](https://www.hltv.org/matches/2239492/nip-vs-virtuspro-sltv-starseries-v-finals).
 pub struct MatchDetails {
     pub id: u64,
     pub team1: Option<Team>,
@@ -164,13 +188,14 @@ pub enum WhichTeam {
     None,
 }
 
-/// Represents the result of a single map. Examples are: 16-14, 10-16, 19-17
+/// Represents the result of a single map. Examples are: `16-14`, `10-16`, `19-17`
 pub struct MapScore {
     pub map: String,
     pub team1_rounds: u64,
     pub team2_rounds: u64,
 }
 
+/// Collection of performance metrics of a player.
 pub struct Stats {
     /// Total kills.
     pub kills: u64,
