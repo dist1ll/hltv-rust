@@ -12,19 +12,33 @@ GitHub repository or submit a pull request.
 
 use crate::data::*;
 use crate::Error;
+use crate::Convert;
 
 impl<'a> TryFrom<tl::VDom<'a>> for Match {
     type Error = crate::Error;
-    fn try_from(value: tl::VDom<'a>) -> Result<Self, Self::Error> {
+    fn try_from(_dom: tl::VDom<'a>) -> Result<Self, Self::Error> {
         Err(Error::ConversionError)
     }
 }
 
-impl<'a> TryFrom<tl::VDom<'a>> for Player {
-    type Error = crate::Error;
-    fn try_from(value: tl::VDom<'a>) -> Result<Self, Self::Error> {
+impl<'a> Convert<'a> for Player {
+    fn convert(_d: tl::VDom<'a>) -> Result<Vec<Player>, crate::Error> {
         Err(Error::ConversionError)
     }
 }
 
+#[cfg(test)]
+mod tests {
+    #[test]
+    pub fn player() {
+        let input = include_str!("./testdata/player.html");
+        let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
+        let mut qs = dom.query_selector("td.player").unwrap();
+        qs.next().unwrap().get(dom.parser());
+        for x in qs {
+            let node = x.get(dom.parser()).unwrap();
+            assert_eq!("{:?}", node.inner_text(dom.parser()));
+        }
+    }
+}
 

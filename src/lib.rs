@@ -26,10 +26,10 @@ contains less information in the HTML document than the detailed match-specific 
 ```rust
 /// Example
 ```
-
 */
+#![allow(dead_code)]
+
 use std::marker::PhantomData;
-use tl::ParserOptions;
 
 pub mod converter;
 pub mod data;
@@ -44,11 +44,18 @@ pub enum Error {
     ConversionError,
 }
 
+/// Implements a conversion from a DOM object to a collection of its own type.
+pub trait Convert<'a> {
+    /// Converts a given VDOM into a vector of its own type. This is because
+    /// them DOM can contain multiple instances of that type.
+    fn convert(d: tl::VDom<'a>) -> Result<Vec<Self>, crate::Error>;
+}
+
 /// A reusable request object, that fetches, parses and converts HLTV data
 /// to the correct type.
 pub struct Request<'a, T>
 where
-    T: TryFrom<tl::VDom<'a>>,
+    T: Convert<'a>,
 {
     url: String,
     _m: PhantomData<&'a T>,
@@ -56,7 +63,7 @@ where
 
 impl<'a, T> Request<'a, T>
 where
-    T: TryFrom<tl::VDom<'a>>,
+    T: Convert<'a>,
 {
     /// Creates a new request object with given url and conversion type.
     pub fn new(url: String) -> Request<'a, T> {
