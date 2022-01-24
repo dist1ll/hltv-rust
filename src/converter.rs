@@ -39,10 +39,13 @@ fn for_matchpage(d: &tl::VDom, r: &mut Vec<Player>) -> Result<(), Error> {
             .and_then(|h| h.get(d.parser()))
             .and_then(|n| n.as_tag())
             .and_then(|t| t.attributes().get("data-player-id")).flatten();
+
         if let Some(bytes) = &id {
             let s = bytes.as_utf8_str();
             let rez: u32 = s.parse().unwrap();
             println!("{:?}", rez);
+        } else {
+            return Err(Error::ConversionError);
         }
         let s = node.inner_text(d.parser()).to_string();
         let p = Player { id: 0, nickname: s };
