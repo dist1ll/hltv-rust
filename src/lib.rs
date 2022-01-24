@@ -35,6 +35,7 @@ pub mod converter;
 pub mod data;
 
 /// Errors that happen during request, parse or conversion of data.
+#[derive(Debug)]
 pub enum Error {
     /// Any non-200 status code.
     HTTPError,
@@ -45,17 +46,30 @@ pub enum Error {
 }
 
 /// Implements a conversion from a DOM object to a collection of its own type.
-pub trait Convert<'a> {
+pub trait ConvertCollection<'a>
+where
+    Self: Sized,
+{
     /// Converts a given VDOM into a vector of its own type. This is because
     /// them DOM can contain multiple instances of that type.
     fn convert(d: tl::VDom<'a>) -> Result<Vec<Self>, crate::Error>;
+}
+
+/// Implements a conversion from a DOM object to a single instance of its own type.
+pub trait ConvertInstance<'a>
+where
+    Self: Sized,
+{
+    /// Converts a given VDOM into a instance of its own type. If the DOM contains
+    /// multiple instances, the first one is chosen.
+    fn convert(d: tl::VDom<'a>) -> Result<Self, crate::Error>;
 }
 
 /// A reusable request object, that fetches, parses and converts HLTV data
 /// to the correct type.
 pub struct Request<'a, T>
 where
-    T: Convert<'a>,
+    T: ConvertCollection<'a>,
 {
     url: String,
     _m: PhantomData<&'a T>,
@@ -63,7 +77,7 @@ where
 
 impl<'a, T> Request<'a, T>
 where
-    T: Convert<'a>,
+    T: ConvertCollection<'a>,
 {
     /// Creates a new request object with given url and conversion type.
     pub fn new(url: String) -> Request<'a, T> {
