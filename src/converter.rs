@@ -40,15 +40,17 @@ fn for_matchpage(d: &tl::VDom, r: &mut Vec<Player>) -> Result<(), Error> {
             .and_then(|n| n.as_tag())
             .and_then(|t| t.attributes().get("data-player-id")).flatten();
 
+        let mut p = Player::default();
+
         if let Some(bytes) = &id {
             let s = bytes.as_utf8_str();
-            let rez: u32 = s.parse().unwrap();
-            println!("{:?}", rez);
+            p.id = s.parse().unwrap();
         } else {
             return Err(Error::ConversionError);
         }
+
         let s = node.inner_text(d.parser()).to_string();
-        let p = Player { id: 0, nickname: s };
+        p.nickname = s;
         r.push(p);
     }
     Ok(())
@@ -75,8 +77,8 @@ mod tests {
         let input = include_str!("./testdata/player.html");
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
         let result = Player::convert(dom).unwrap();
-        assert_eq!(result[0].nickname, "dist1ll");
-        assert_eq!(result[1].nickname, "3rr0r");
+        assert_eq!(result[0], Player{id: 1337, nickname: "dist1ll".to_string()});
+        assert_eq!(result[1], Player{id: 1338, nickname: "3rr0r".to_string()});
     }
 
     /// Tests if the converter parses player info from a team page correctly.
@@ -86,7 +88,7 @@ mod tests {
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
         let result = Player::convert(dom).unwrap();
         assert_eq!(result.len(), 2);
-        assert_eq!(result[0].nickname, "dist1ll");
-        assert_eq!(result[1].nickname, "3rr0r");
+        assert_eq!(result[0], Player{id: 1337, nickname: "dist1ll".to_string()});
+        assert_eq!(result[1], Player{id: 1338, nickname: "3rr0r".to_string()});
     }
 }

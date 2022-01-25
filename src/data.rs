@@ -21,6 +21,7 @@ pub enum MatchFormat {
 }
 
 /// Basic player information.
+#[derive(Default, Debug, PartialEq)]
 pub struct Player {
     pub id: u64,
     pub nickname: String,
