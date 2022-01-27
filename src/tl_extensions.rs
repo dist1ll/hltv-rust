@@ -9,7 +9,7 @@ the overhead of the NodeHandle -> Node abstraction).
 use std::borrow::Cow;
 use tl::*;
 
-trait NodeHandleExtension<'a> {
+pub trait NodeHandleExtension<'a> {
     fn inner_text<'b, 'p : 'b>(&'b self, parser: &'p tl::Parser<'a>) -> Option<Cow<'b, str>>;
 }
 
@@ -20,7 +20,7 @@ impl<'a> NodeHandleExtension<'a> for NodeHandle {
     }
 }
 
-trait VDomExtension<'a> {
+pub trait VDomExtension<'a> {
     fn select_nodes(&'a self, h: NodeHandle, class: &str) -> Vec<NodeHandle>;
 }
 

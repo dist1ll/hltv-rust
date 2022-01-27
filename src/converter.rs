@@ -10,9 +10,14 @@ If the conversion breaks at any point in the future, feel free to create an issu
 GitHub repository or submit a pull request.
 */
 
+use substring::Substring;
+
 use crate::data::*;
 use crate::ConvertCollection;
 use crate::Error;
+
+use crate::tl_extensions;
+use crate::tl_extensions::VDomExtension;
 
 impl<'a> ConvertCollection<'a> for Player {
     fn convert(d: tl::VDom<'a>) -> Result<Vec<Player>, Error> {
@@ -57,11 +62,15 @@ fn for_matchpage(d: &tl::VDom, r: &mut Vec<Player>) -> Result<(), Error> {
 
 /// Parses the DOM according to the schema found on the team page.
 fn for_teampage(d: &tl::VDom, r: &mut Vec<Player>) {
-    let selector = d.query_selector("div.xyz div.playerFlagName").unwrap();
-    for x in selector {
-        let node = x.get(d.parser()).unwrap();
-        let s = node.inner_text(d.parser()).to_string();
-        let p = Player { id: 0, nickname: s };
+    let mut selector = d.query_selector("div.bodyshot-team-bg").unwrap();
+    let parent = selector.next().unwrap();
+    for x in d.select_nodes(parent, "col-custom") {
+        let tag = x.get(d.parser()).unwrap().as_tag().unwrap();
+        let name = tag.attributes().get("title").flatten().unwrap().clone().as_utf8_str().to_string();
+        
+        let mut id = tag.attributes().get("href").flatten().unwrap().clone().as_utf8_str().to_string();
+        id = id.substring(8, id.chars().count() - name.chars().count() - 1).to_string();
+        let p = Player { id: id.parse().unwrap(), nickname: name };
         r.push(p);
     }
 }
@@ -86,8 +95,9 @@ mod tests {
         let input = include_str!("./testdata/player_team.html");
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
         let result = Player::convert(dom).unwrap();
-        assert_eq!(result.len(), 2);
-        assert_eq!(result[0], Player{id: 1337, nickname: "dist1ll".to_string()});
-        assert_eq!(result[1], Player{id: 1338, nickname: "3rr0r".to_string()});
+        assert_eq!(result.len(), 3);
+        assert_eq!(result[0], Player{id: 123, nickname: "dist1ll".to_string()});
+        assert_eq!(result[1], Player{id: 124, nickname: "3rr0r".to_string()});
+        assert_eq!(result[2], Player{id: 125, nickname: "rabbit".to_string()});
     }
 }
