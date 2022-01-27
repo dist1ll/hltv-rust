@@ -32,7 +32,13 @@ contains less information in the HTML document than the detailed match-specific 
 use std::marker::PhantomData;
 
 pub mod converter;
-pub mod data;
+
+// Extensions to make the [`tl`] crate more ergonomic. 
+mod tl_extensions;
+
+// Make data available to the hltv crate.
+mod data;
+pub use data::*;
 
 /// Errors that happen during request, parse or conversion of data.
 #[derive(Debug)]
@@ -44,6 +50,7 @@ pub enum Error {
     /// Parsed document can't be converted into target type.
     ConversionError,
 }
+
 
 /// Implements a conversion from a DOM object to a collection of its own type.
 pub trait ConvertCollection<'a>

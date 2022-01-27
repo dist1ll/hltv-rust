@@ -10,8 +10,6 @@ If the conversion breaks at any point in the future, feel free to create an issu
 GitHub repository or submit a pull request.
 */
 
-use std::os::windows::prelude::OpenOptionsExt;
-
 use crate::data::*;
 use crate::ConvertCollection;
 use crate::Error;
@@ -48,17 +46,18 @@ fn for_matchpage(d: &tl::VDom, r: &mut Vec<Player>) -> Result<(), Error> {
         } else {
             return Err(Error::ConversionError);
         }
-
+        
         let s = node.inner_text(d.parser()).to_string();
         p.nickname = s;
         r.push(p);
+        
     }
     Ok(())
 }
 
 /// Parses the DOM according to the schema found on the team page.
 fn for_teampage(d: &tl::VDom, r: &mut Vec<Player>) {
-    let selector = d.query_selector("div.playerFlagName").unwrap();
+    let selector = d.query_selector("div.xyz div.playerFlagName").unwrap();
     for x in selector {
         let node = x.get(d.parser()).unwrap();
         let s = node.inner_text(d.parser()).to_string();
