@@ -9,12 +9,23 @@ the overhead of the NodeHandle -> Node abstraction).
 use std::borrow::Cow;
 use tl::*;
 
-pub trait NodeHandleExtension<'a> {
-    fn inner_text<'b, 'p : 'b>(&'b self, parser: &'p tl::Parser<'a>) -> Option<Cow<'b, str>>;
+pub trait HTMLTagExtension {
+    fn get_attr(&self, attr: &str) -> Option<String>;
 }
 
-impl<'a> NodeHandleExtension<'a> for NodeHandle {
-    fn inner_text<'b, 'p : 'b>(&'b self, parser: &'p tl::Parser<'a>) -> Option<Cow<'b, str>> {
+impl<'a> HTMLTagExtension for HTMLTag<'a> {
+    fn get_attr(&self, attr: &str) -> Option<String> {
+        let result = self.attributes().get(attr).flatten()?;
+        Some(result.as_utf8_str().to_string())
+    }
+}
+
+pub trait NodeHandleExtension {
+    fn inner_text<'b, 'p : 'b>(&'b self, parser: &'p tl::Parser<'b>) -> Option<Cow<'b, str>>;
+}
+
+impl<'a> NodeHandleExtension for NodeHandle {
+    fn inner_text<'b, 'p : 'b>(&'b self, parser: &'p tl::Parser<'b>) -> Option<Cow<'b, str>> {
         let node = self.get(parser)?;
         Some(node.inner_text(parser))
     }

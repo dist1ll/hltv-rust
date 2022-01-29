@@ -54,29 +54,28 @@ fn for_teampage(d: &tl::VDom, r: &mut Vec<Player>) {
     if parent.is_none() {
         return;
     }
-    for x in d.select_nodes(parent.unwrap(), "col-custom") {
-        let tag = x.get(d.parser()).unwrap().as_tag().unwrap();
-        let name = tag
-            .attributes()
-            .get("title")
-            .flatten()
-            .unwrap()
-            .clone()
-            .as_utf8_str()
-            .to_string();
-        let mut id = tag
-            .attributes()
-            .get("href")
-            .flatten()
-            .unwrap()
-            .clone()
-            .as_utf8_str()
-            .to_string();
+    for node in d.select_nodes(parent.unwrap(), "col-custom") {
+        let tag = node.get(d.parser()).unwrap().as_tag().unwrap();
+
+        let name = match tag.get_attr("title") {
+            Some(x) => x,
+            None => continue,
+        };
+
+        let mut id = match tag.get_attr("href") {
+            Some(x) => x,
+            None => continue,
+        };
+
         id = id
             .substring(8, id.chars().count() - name.chars().count() - 1)
             .to_string();
+
         let p = Player {
-            id: id.parse().unwrap(),
+            id: match id.parse() {
+                Ok(id) => id,
+                _ => continue,
+            },
             nickname: name,
         };
         r.push(p);
