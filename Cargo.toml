@@ -11,6 +11,9 @@ readme = "README.md"
 keywords = ["hltv", "csgo", "api", "esports"]
 categories = ["api-bindings"]
 
+[lib]
+doctest = false
+
 [dependencies]
 attohttpc = "0.18"
 chrono = "0.4"
