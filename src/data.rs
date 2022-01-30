@@ -23,14 +23,14 @@ pub enum MatchFormat {
 /// Basic player information.
 #[derive(Default, Debug, PartialEq)]
 pub struct Player {
-    pub id: u64,
+    pub id: u32,
     pub nickname: String,
 }
 
 /// Basic information about a team.
 pub struct Team {
     /// HLTV-associated ID (found in the URL of team page).
-    pub id: u64,
+    pub id: u32,
     /// Name of the team.
     pub name: String,
 }
@@ -38,7 +38,7 @@ pub struct Team {
 /// Basic information about a team.
 pub struct Event {
     /// HLTV-associated ID (found in the URL of the event page).
-    pub id: u64,
+    pub id: u32,
     /// Name of the Event
     pub name: String,
 }
@@ -47,7 +47,7 @@ pub struct Event {
 /// page](https://www.hltv.org/events/6345/blast-premier-spring-final-2022).
 pub struct EventDetails {
     /// HLTV-associated ID (found in the URL of the event page).
-    pub id: u64,
+    pub id: u32,
     /// Name of the event.
     pub name: String,
     /// Date when the event starts.
@@ -60,14 +60,14 @@ pub struct EventDetails {
 
 /// Contains extensive information about a team.
 pub struct TeamDetails {
-    pub id: u64,
+    pub id: u32,
     pub name: String,
     pub players: [Player; 5],
 }
 
 /// Contains a summary of an upcoming match ([reference](https://www.hltv.org/matches)).
 pub struct UpcomingMatch {
-    pub id: u64,
+    pub id: u32,
     /// First team of the mach, according to HLTV's display order
     pub team1: Option<Team>,
     /// Second team of the mach, according to HLTV's display order
@@ -83,7 +83,7 @@ pub struct UpcomingMatch {
     /// Number of HLTV stars given to the match. Stars are a measure of match prestige.
     /// The exact meaning is defined
     /// [here](https://www.hltv.org/forums/threads/931435/what-are-these-stars-by-the-matches#r12178822).
-    pub stars: u64,
+    pub stars: u32,
 }
 
 /// Contains a summary of a concluded match ([reference](https://www.hltv.org/results)).
@@ -94,9 +94,9 @@ pub struct MatchResult {
     /// Name of team 2. The result page doesn't contain team IDs unfortunately.
     pub team2: Option<String>,
     /// Either a match score for bo3 and higher, or a map score for bo1s.
-    pub score1: u64,
+    pub score1: u32,
     /// Either a match score for bo3 and higher, or a map score for bo1s.
-    pub score2: u64,
+    pub score2: u32,
     /// Name of the event
     pub event: String,
     /// Format of a match. For example, if the format is [`Bo1`][MatchFormat::Bo1],
@@ -108,7 +108,7 @@ pub struct MatchResult {
 /// Contains detailed information about a match. Corresponds to data found on [HLTV's
 /// match page](https://www.hltv.org/matches/2239492/nip-vs-virtuspro-sltv-starseries-v-finals).
 pub struct MatchDetails {
-    pub id: u64,
+    pub id: u32,
     pub team1: Option<Team>,
     pub team2: Option<Team>,
     pub event: Event,
@@ -126,20 +126,20 @@ pub enum WhichTeam {
 /// Represents the result of a single map. Examples are: `16-14`, `10-16`, `19-17`
 pub struct MapScore {
     pub map: String,
-    pub team1_rounds: u64,
-    pub team2_rounds: u64,
+    pub team1_rounds: u32,
+    pub team2_rounds: u32,
 }
 
 /// Collection of performance metrics of a player.
 pub struct Stats {
     /// Total kills.
-    pub kills: u64,
+    pub kills: u32,
     /// Total deaths.
-    pub deaths: u64,
+    pub deaths: u32,
     /// Average damage per round.
-    pub adr: f64,
+    pub adr: f32,
     /// Percentage of rounds with either kill, assisst, support or trade.
-    pub kast: f64,
+    pub kast: f32,
     /// HLTV 2.0 rating.
-    pub rating: f64,
+    pub rating: f32,
 }
