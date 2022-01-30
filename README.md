@@ -3,10 +3,9 @@
 **A crate for fetching and parsing esports data from [HLTV.org](https://www.hltv.org).**
 
 This crate allows you to fetch and parse upcoming matches, results,
-event information, player performance and other data. The http requests are done with  
-[`attohttpc`](https://crates.io/crates/attohttpc)
-and the HTML responses are parsed with 
-[`tl`](https://crates.io/crates/tl). 
+event information, player performance and other data. 
+The http requests are done with [`attohttpc`](https://crates.io/crates/attohttpc)
+and the HTML responses are parsed with [`tl`](https://crates.io/crates/tl). 
 
 A collection of detailed examples and explanations can be found in
 [the official docs](https://www.docs.rs/hltv).

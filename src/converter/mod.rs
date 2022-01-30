@@ -10,6 +10,6 @@ If the conversion breaks at any point in the future, feel free to create an issu
 GitHub repository or submit a pull request.
 */
 
-mod player;
+pub mod player;
+pub mod matches;
 
-pub use player::*;

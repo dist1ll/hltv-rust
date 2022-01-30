@@ -65,20 +65,18 @@ pub struct TeamDetails {
     pub players: [Player; 5],
 }
 
-/// Contains a summary of match data.
-pub struct Match {
+/// Contains a summary of an upcoming match ([reference](https://www.hltv.org/matches)).
+pub struct UpcomingMatch {
     pub id: u64,
     /// First team of the mach, according to HLTV's display order
-    pub team1: Option<String>,
+    pub team1: Option<Team>,
     /// Second team of the mach, according to HLTV's display order
-    pub team2: Option<String>,
+    pub team2: Option<Team>,
     /// Name of the event.
     pub event: String,
     /// Format of a match. For example, if the format is [`Bo1`][MatchFormat::Bo1],
     /// then only one map is played and the result is either a `1-0` or `0-1`.
     pub format: MatchFormat,
-    /// Result of a match. If the match has not concluded, the result is [`None`].
-    pub result: Option<MatchResult>,
     /// Time when an upcoming match is supposed to start. If the match is finished,
     /// this date is the finish time (according to HLTV).
     pub date: DateTime<Utc>,
@@ -86,6 +84,25 @@ pub struct Match {
     /// The exact meaning is defined
     /// [here](https://www.hltv.org/forums/threads/931435/what-are-these-stars-by-the-matches#r12178822).
     pub stars: u64,
+}
+
+/// Contains a summary of a concluded match ([reference](https://www.hltv.org/results)).
+pub struct MatchResult {
+    pub winner: WhichTeam,
+    /// Name of team 1. The result page doesn't contain team IDs unfortunately.
+    pub team1: Option<String>,
+    /// Name of team 2. The result page doesn't contain team IDs unfortunately.
+    pub team2: Option<String>,
+    /// Either a match score for bo3 and higher, or a map score for bo1s.
+    pub score1: u64,
+    /// Either a match score for bo3 and higher, or a map score for bo1s.
+    pub score2: u64,
+    /// Name of the event
+    pub event: String,
+    /// Format of a match. For example, if the format is [`Bo1`][MatchFormat::Bo1],
+    /// then only one map is played and the result is either a `1-0` or `0-1`.
+    pub format: MatchFormat,
+    
 }
 
 /// Contains detailed information about a match. Corresponds to data found on [HLTV's
@@ -125,13 +142,4 @@ pub struct Stats {
     pub kast: f64,
     /// HLTV 2.0 rating.
     pub rating: f64,
-}
-
-/// This is the map score of a match. Examples are: 1-0, 2-1, 1-2, 3-0, etc.
-pub struct MatchResult {
-    pub winner: WhichTeam,
-    /// Number of maps won by first team.
-    pub team1_maps: u64,
-    /// Number of maps won by first team.
-    pub team2_maps: u64,
 }
