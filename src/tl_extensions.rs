@@ -55,12 +55,18 @@ impl<'a> NodeHandleExtension for NodeHandle {
 }
 
 pub trait VDomExtension<'a> {
+    /// Return the first node in the subtree of `h` that has the given
+    /// class string.
+    fn select_first(&'a self, h: NodeHandle, class: &str) -> Option<NodeHandle>;
+    /// Return all nodes in the subtree of `h` that have the given
+    /// class string.
     fn select_nodes(&'a self, h: NodeHandle, class: &str) -> Vec<NodeHandle>;
 }
 
 impl<'a> VDomExtension<'a> for VDom<'a> {
-    /// Return all nodes in the subtree of `h` that have the given
-    /// class string.
+    fn select_first(&'a self, h: NodeHandle, class: &str) -> Option<NodeHandle> {
+        dfs_first(h, self, class)
+    }
     fn select_nodes(&'a self, h: NodeHandle, class: &str) -> Vec<NodeHandle> {
         let mut result = Vec::<NodeHandle>::new();
         dfs(h, self, class, &mut result);
@@ -93,6 +99,23 @@ fn dfs<'a>(h: NodeHandle, dom: &'a VDom<'a>, class: &str, result: &mut Vec<NodeH
     }
 }
 
+fn dfs_first<'a>(h: NodeHandle, dom: &'a VDom<'a>, class: &str) -> Option<NodeHandle> {
+    // break condition
+    let tag = h.get(dom.parser()).unwrap().as_tag()?;
+    if tag.attributes().is_class_member(class) {
+        return Some(h);
+    }
+    // return None when no children
+    let children = h.get(dom.parser()).unwrap().children()?;
+
+    // otherwise, iterate over all children
+    for c in children {
+        if let Some(x) = dfs_first(c, dom, class) {
+            return Some(x);
+        }
+    }
+    None
+}
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -107,6 +130,8 @@ mod tests {
             nodes[0].get(dom.parser()).unwrap().inner_text(dom.parser()),
             "dist1ll"
         );
+        let node = dom.select_first(dom.children()[0], "abc").unwrap();
+        assert_eq!(node.inner_text(dom.parser()).unwrap(), "dist1ll");
 
         let nodes = dom.select_nodes(dom.children()[1], "abc");
         assert_eq!(nodes.len(), 1);
