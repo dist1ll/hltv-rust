@@ -1,31 +1,54 @@
 /*!
-Extensions to make the [`tl`] crate more ergonomic. 
+Extensions to make the [`tl`] crate more ergonomic.
 
-This module contains functionality that makes it easier to traverse 
+This module contains functionality that makes it easier to traverse
 DOM elements and NodeHandles, as well as extract information (without
 the overhead of the NodeHandle -> Node abstraction).
 */
 
-use std::borrow::Cow;
+use crate::Error;
+use std::{borrow::Cow, str::FromStr};
 use tl::*;
 
 pub trait HTMLTagExtension {
-    fn get_attr(&self, attr: &str) -> Option<String>;
+    /// Finds an attribute in a given html tag. Returns `Some(x)` if attribute `x`
+    /// could be found and parsed correctly. Returns a [`Error::ConversionError`]
+    /// if the attribute string couldn't be parsed to `T`.
+    fn get_attr<T>(&self, attr: &str) -> Result<Option<T>, Error>
+    where
+        T: FromStr;
+
+    /// Finds an attribute in a given html tag. Returns a normal String.
+    fn get_attr_str(&self, attr: &str) -> Option<String>;
 }
 
 impl<'a> HTMLTagExtension for HTMLTag<'a> {
-    fn get_attr(&self, attr: &str) -> Option<String> {
+    fn get_attr<T>(&self, attr: &str) -> Result<Option<T>, Error>
+    where
+        T: FromStr,
+    {
+        let s = self.get_attr_str(attr);
+        if s.is_none(){
+            return Ok(None);
+        }
+        match s.unwrap().parse::<T>() {
+            Ok(t) => Ok(Some(t)),
+            Err(_) => Err(Error::ParseError),
+        }
+    }
+
+    fn get_attr_str(&self, attr: &str) -> Option<String> {
         let result = self.attributes().get(attr).flatten()?;
         Some(result.as_utf8_str().to_string())
     }
 }
 
 pub trait NodeHandleExtension {
-    fn inner_text<'b, 'p : 'b>(&'b self, parser: &'p tl::Parser<'b>) -> Option<Cow<'b, str>>;
+    fn inner_text<'b, 'p: 'b>(&'b self, parser: &'p tl::Parser<'b>) -> Option<Cow<'b, str>>;
 }
 
 impl<'a> NodeHandleExtension for NodeHandle {
-    fn inner_text<'b, 'p : 'b>(&'b self, parser: &'p tl::Parser<'b>) -> Option<Cow<'b, str>> {
+    fn inner_text<'b, 'p: 'b>(&'b self, parser: &'p tl::Parser<'b>) -> Option<Cow<'b, str>> {
         let node = self.get(parser)?;
         Some(node.inner_text(parser))
     }
@@ -80,8 +103,11 @@ mod tests {
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
         let nodes = dom.select_nodes(dom.children()[0], "abc");
         assert_eq!(nodes.len(), 2);
-        assert_eq!(nodes[0].get(dom.parser()).unwrap().inner_text(dom.parser()), "dist1ll");
-        
+        assert_eq!(
+            nodes[0].get(dom.parser()).unwrap().inner_text(dom.parser()),
+            "dist1ll"
+        );
+
         let nodes = dom.select_nodes(dom.children()[1], "abc");
         assert_eq!(nodes.len(), 1);
     }

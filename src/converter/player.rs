@@ -10,20 +10,16 @@ impl<'a> ConvertCollection<'a> for Player {
     fn convert(d: tl::VDom<'a>) -> Result<Vec<Player>, Error> {
         let mut result = Vec::<Player>::new();
         // query selector for match page
-        if let Err(x) = for_matchpage(&d, &mut result) {
-            return Err(Error::ConversionError(x.to_string()));
-        }
-        // query selector for team page
-        if let Err(x) = for_teampage(&d, &mut result) {
-            return Err(Error::ConversionError(x.to_string()));
-        }
+        for_teampage(&d, &mut result)?;
+       // query selector for team page
+        for_matchpage(&d, &mut result)?;
 
         Ok(result)
     }
 }
 
 /// Parses the DOM according to the schema found on the match page.
-fn for_matchpage(d: &tl::VDom, r: &mut Vec<Player>) -> Result<(), &'static str> {
+fn for_matchpage(d: &tl::VDom, r: &mut Vec<Player>) -> Result<(), Error> {
     let selector = d.query_selector("td.player").unwrap();
     for x in selector {
         let node = x.get(d.parser()).unwrap();
@@ -41,7 +37,7 @@ fn for_matchpage(d: &tl::VDom, r: &mut Vec<Player>) -> Result<(), &'static str> 
             let s = bytes.as_utf8_str();
             p.id = s.parse().unwrap();
         } else {
-            return Err("ID couldn't be parsed");
+            return Err(Error::ConversionError("ID couldn't be parsed".to_string()));
         }
 
         let s = node.inner_text(d.parser()).to_string();
@@ -52,7 +48,7 @@ fn for_matchpage(d: &tl::VDom, r: &mut Vec<Player>) -> Result<(), &'static str> 
 }
 
 /// Parses the DOM according to the schema found on the team page.
-fn for_teampage(d: &tl::VDom, r: &mut Vec<Player>) -> Result<(), &'static str> {
+fn for_teampage(d: &tl::VDom, r: &mut Vec<Player>) -> Result<(), Error> {
     let mut selector = d.query_selector("div.bodyshot-team-bg").unwrap();
     let parent = selector.next();
     if parent.is_none() {
@@ -61,14 +57,14 @@ fn for_teampage(d: &tl::VDom, r: &mut Vec<Player>) -> Result<(), &'static str> {
     for node in d.select_nodes(parent.unwrap(), "col-custom") {
         let tag = node.get(d.parser()).unwrap().as_tag().unwrap();
 
-        let name = match tag.get_attr("title") {
+        let name: String = match tag.get_attr_str("title") {
             Some(x) => x,
-            None => return Err("missing title attribute in player div"),
+            None => return Err(Error::ConversionError("missing title attribute in player div".to_string())),
         };
 
-        let mut id = match tag.get_attr("href") {
+        let mut id: String = match tag.get_attr_str("href") {
             Some(x) => x,
-            None => return Err("missing href link in player div"),
+            None => return Err(Error::ConversionError("missing href link in player div".to_string())),
         };
 
         id = id
@@ -78,7 +74,7 @@ fn for_teampage(d: &tl::VDom, r: &mut Vec<Player>) -> Result<(), &'static str> {
         let p = Player {
             id: match id.parse() {
                 Ok(id) => id,
-                _ => return Err("incorrect ID / format of href was changed"),
+                _ => return Err(Error::ConversionError("incorrect ID / format of href was changed".to_string())),
             },
             nickname: name,
         };
@@ -97,6 +93,7 @@ mod tests {
         let input = include_str!("../testdata/player_match.html");
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
         let result = Player::convert(dom).unwrap();
+        assert_eq!(result.len(), 2);
         assert_eq!(
             result[0],
             Player {

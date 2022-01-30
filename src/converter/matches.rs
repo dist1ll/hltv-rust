@@ -19,14 +19,9 @@ impl<'a> ConvertCollection<'a> for UpcomingMatch {
 /// to search for either.
 fn parse_team(d: &tl::VDom, h: tl::NodeHandle, team_id: &str) -> Result<Option<Team>, Error> {
     let tag = h.get(d.parser()).unwrap().as_tag().unwrap();
-    let id = match tag.get_attr(team_id) {
-        Some(s) => match s.parse::<u32>() {
-            Ok(stars) => stars,
-            _ => return Err(Error::ParseError),
-        },
-        None => return Err(Error::ConversionError(
-            "no stars attribute in div.upcomingMatch".to_string(),
-        )),
+    let id = match tag.get_attr(team_id)? {
+        Some(id) => id,
+        None => return Err(Error::ConversionError("no id attribute in div.upcomingMatch".to_string())),
     };
 
     let nodes = d.select_nodes(h, team_id);
@@ -49,15 +44,10 @@ fn parse_team(d: &tl::VDom, h: tl::NodeHandle, team_id: &str) -> Result<Option<T
 /// the stars information is missing or the attribute cannot be parsed.
 fn parse_stars(d: &tl::VDom, h: tl::NodeHandle) -> Result<u32, Error> {
     let tag = h.get(d.parser()).unwrap().as_tag().unwrap();
-    match tag.get_attr("stars") {
-        Some(s) => match s.parse::<u32>() {
-            Ok(stars) => Ok(stars),
-            _ => Err(Error::ParseError),
-        },
-        None => Err(Error::ConversionError(
-            "no stars attribute in div.upcomingMatch".to_string(),
-        )),
-    }
+    match tag.get_attr("stars")? {
+        Some(x) => Ok(x),
+        None => Err(Error::ConversionError("no stars attribute in div.upcomingMatch".to_string())),
+   }
 }
 
 #[cfg(test)]
