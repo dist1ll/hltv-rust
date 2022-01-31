@@ -28,7 +28,7 @@ impl<'a> HTMLTagExtension for HTMLTag<'a> {
         T: FromStr,
     {
         let s = self.get_attr_str(attr);
-        if s.is_none(){
+        if s.is_none() {
             return Ok(None);
         }
         match s.unwrap().parse::<T>() {
@@ -44,13 +44,34 @@ impl<'a> HTMLTagExtension for HTMLTag<'a> {
 }
 
 pub trait NodeHandleExtension {
-    fn inner_text<'b, 'p: 'b>(&'b self, parser: &'p tl::Parser<'b>) -> Option<Cow<'b, str>>;
+    fn inner_text<'b, 'p: 'b>(self, parser: &'p tl::Parser<'b>) -> Option<Cow<'b, str>>;
+    fn to_rich<'a>(self, d: &'a VDom<'a>) -> RichNode<'a>;
 }
 
-impl<'a> NodeHandleExtension for NodeHandle {
-    fn inner_text<'b, 'p: 'b>(&'b self, parser: &'p tl::Parser<'b>) -> Option<Cow<'b, str>> {
+impl NodeHandleExtension for NodeHandle {
+    fn inner_text<'b, 'p: 'b>(self, parser: &'p tl::Parser<'b>) -> Option<Cow<'b, str>> {
         let node = self.get(parser)?;
         Some(node.inner_text(parser))
+    }
+    fn to_rich<'a>(self, d: &'a VDom<'a>) -> RichNode<'a> {
+        RichNode::<'a>{d, n: Some(self)}
+    }
+}
+
+/// A node that also has a VDom reference. Can be used to chain
+/// find calls
+pub struct RichNode<'a> {
+    d: &'a VDom<'a>,
+    n: Option<NodeHandle>,
+}
+
+impl<'a> RichNode<'a> {
+    fn find(&self, class: &str) -> RichNode<'a> {
+        if self.n.is_none() {
+            return RichNode { d: self.d, n: None };
+        }
+        let n = self.d.select_first(self.n.unwrap(), class);
+        RichNode { d: self.d, n }
     }
 }
 
@@ -135,5 +156,14 @@ mod tests {
 
         let nodes = dom.select_nodes(dom.children()[1], "abc");
         assert_eq!(nodes.len(), 1);
+    }
+
+    #[test]
+    pub fn rich() {
+        let input = include_str!("./testdata/rich.html");
+        let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
+        let root = dom.children()[0].to_rich(&dom);
+        let inner = root.find("b").find("x").find("y").n.unwrap().inner_text(dom.parser());
+        println!("{:?}", inner);
     }
 }

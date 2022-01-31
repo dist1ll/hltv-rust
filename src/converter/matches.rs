@@ -18,7 +18,7 @@ impl<'a> ConvertCollection<'a> for UpcomingMatch {
 /// to search for either.
 fn parse_team(d: &tl::VDom, h: tl::NodeHandle, team_id: &str) -> Option<Team> {
     let tag = h.get(d.parser()).unwrap().as_tag().unwrap();
-    let id: u32 = tag.get_attr(team_id).unwrap()?;
+    let id: u32 = tag.get_attr(team_id).unwrap_or(None)?;
     let team_node = d.select_first(h, team_id)?;
     let name_node = d.select_first(team_node, "matchTeamName")?;
     name_node.inner_text(d.parser()).map(|n| Team {
