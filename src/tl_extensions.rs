@@ -44,12 +44,12 @@ impl<'a> HTMLTagExtension for HTMLTag<'a> {
 }
 
 pub trait NodeHandleExtension {
-    fn inner_text<'b, 'p: 'b>(self, parser: &'p tl::Parser<'b>) -> Option<Cow<'b, str>>;
+    fn inner_text<'b, 'p: 'b>(&self, parser: &'p tl::Parser<'b>) -> Option<Cow<'b, str>>;
     fn to_rich<'a>(self, d: &'a VDom<'a>) -> RichNode<'a>;
 }
 
 impl NodeHandleExtension for NodeHandle {
-    fn inner_text<'b, 'p: 'b>(self, parser: &'p tl::Parser<'b>) -> Option<Cow<'b, str>> {
+    fn inner_text<'b, 'p: 'b>(&self, parser: &'p tl::Parser<'b>) -> Option<Cow<'b, str>> {
         let node = self.get(parser)?;
         Some(node.inner_text(parser))
     }
@@ -66,13 +66,16 @@ pub struct RichNode<'a> {
 }
 
 impl<'a> RichNode<'a> {
-    fn find(&self, class: &str) -> RichNode<'a> {
+    fn find(self, class: &str) -> RichNode<'a> {
         if self.n.is_none() {
             return RichNode { d: self.d, n: None };
         }
         let n = self.d.select_first(self.n.unwrap(), class);
         RichNode { d: self.d, n }
     }
+    fn inner_text(self) -> Option<Cow<'a, str>> {
+        self.n.and_then(|n| n.inner_text(self.d.parser()))
+    } 
 }
 
 pub trait VDomExtension<'a> {
@@ -163,7 +166,7 @@ mod tests {
         let input = include_str!("./testdata/rich.html");
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
         let root = dom.children()[0].to_rich(&dom);
-        let inner = root.find("b").find("x").find("y").n.unwrap().inner_text(dom.parser());
+        let inner = root.find("b").find("x").find("y").inner_text();
         println!("{:?}", inner);
     }
 }
