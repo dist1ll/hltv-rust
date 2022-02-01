@@ -62,13 +62,13 @@ impl NodeHandleExtension for NodeHandle {
 /// find calls
 #[derive(Clone, Copy)]
 pub struct RichNode<'a> {
-    d: &'a VDom<'a>,
-    n: Option<NodeHandle>,
+    pub d: &'a VDom<'a>,
+    pub n: Option<NodeHandle>,
 }
 
 impl<'a> RichNode<'a> {
     /// Returns a child with given class.
-    fn find(self, class: &str) -> RichNode<'a> {
+    pub fn find(self, class: &str) -> RichNode<'a> {
         if self.n.is_none() {
             return RichNode { d: self.d, n: None };
         }
@@ -76,7 +76,7 @@ impl<'a> RichNode<'a> {
         RichNode { d: self.d, n }
     }
     /// Returns all children with given class
-    fn find_all(self, class: &str) -> Vec<RichNode<'a>> {
+    pub fn find_all(self, class: &str) -> Vec<RichNode<'a>> {
         if self.n.is_none() {
             return Vec::<RichNode<'a>>::new();
         }
@@ -86,8 +86,34 @@ impl<'a> RichNode<'a> {
             .map(|n| n.to_rich(self.d))
             .collect()
     }
-    fn inner_text(self) -> Option<Cow<'a, str>> {
-        self.n.and_then(|n| n.inner_text(self.d.parser()))
+
+    pub fn get_attr<T>(&self, attr: &str) -> Result<Option<T>, Error>
+    where
+        T: FromStr,
+    {
+        let tag = self
+            .n
+            .and_then(|n| n.get(self.d.parser()))
+            .ok_or(Error::ParseError)?
+            .as_tag()
+            .ok_or(Error::ParseError)?;
+
+        let s = tag.get_attr_str(attr);
+        if s.is_none() {
+            return Ok(None);
+        }
+        match s.unwrap().parse::<T>() {
+            Ok(t) => Ok(Some(t)),
+            Err(_) => Err(Error::ParseError),
+        }
+    }
+
+    pub fn inner_text(self) -> Option<String> {
+        self.n.and_then(|n| n.inner_text(self.d.parser())).map(|c| c.to_string())
+    }
+
+    pub fn get(self) -> Option<&'a Node<'a>> {
+        self.n.and_then(|n| n.get(self.d.parser()))
     }
 }
 

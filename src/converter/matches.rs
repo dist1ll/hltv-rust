@@ -16,16 +16,13 @@ impl<'a> ConvertCollection<'a> for UpcomingMatch {
 
 /// Returns a Team contained in the NodeHandle. Use tag `"team1"` or `"team2"`
 /// to search for either.
-fn parse_team(d: &tl::VDom, h: tl::NodeHandle, team_id: &str) -> Option<Team> {
-    let tag = h.get(d.parser()).unwrap().as_tag().unwrap();
-    let id: u32 = tag.get_attr(team_id).unwrap_or(None)?;
-    let team_node = d.select_first(h, team_id)?;
-    let name_node = d.select_first(team_node, "matchTeamName")?;
-    name_node.inner_text(d.parser()).map(|n| Team {
-        id,
-        name: n.to_string(),
+fn parse_team(h: RichNode, team_id: &str) -> Option<Team> {
+    Some(Team{
+        id:  h.get_attr(team_id).unwrap_or(None)?,
+        name: h.find(team_id).find("matchTeamName").inner_text()?,
     })
 }
+
 /// Returns the number of stars in an upcoming match. Returns errors if
 /// the stars information is missing or the attribute cannot be parsed.
 fn parse_stars(d: &tl::VDom, h: tl::NodeHandle) -> Result<u32, Error> {
