@@ -54,18 +54,20 @@ impl NodeHandleExtension for NodeHandle {
         Some(node.inner_text(parser))
     }
     fn to_rich<'a>(self, d: &'a VDom<'a>) -> RichNode<'a> {
-        RichNode::<'a>{d, n: Some(self)}
+        RichNode::<'a> { d, n: Some(self) }
     }
 }
 
 /// A node that also has a VDom reference. Can be used to chain
 /// find calls
+#[derive(Clone, Copy)]
 pub struct RichNode<'a> {
     d: &'a VDom<'a>,
     n: Option<NodeHandle>,
 }
 
 impl<'a> RichNode<'a> {
+    /// Returns a child with given class.
     fn find(self, class: &str) -> RichNode<'a> {
         if self.n.is_none() {
             return RichNode { d: self.d, n: None };
@@ -73,9 +75,20 @@ impl<'a> RichNode<'a> {
         let n = self.d.select_first(self.n.unwrap(), class);
         RichNode { d: self.d, n }
     }
+    /// Returns all children with given class
+    fn find_all(self, class: &str) -> Vec<RichNode<'a>> {
+        if self.n.is_none() {
+            return Vec::<RichNode<'a>>::new();
+        }
+        self.d
+            .select_nodes(self.n.unwrap(), class)
+            .iter()
+            .map(|n| n.to_rich(self.d))
+            .collect()
+    }
     fn inner_text(self) -> Option<Cow<'a, str>> {
         self.n.and_then(|n| n.inner_text(self.d.parser()))
-    } 
+    }
 }
 
 pub trait VDomExtension<'a> {
@@ -166,7 +179,12 @@ mod tests {
         let input = include_str!("./testdata/rich.html");
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
         let root = dom.children()[0].to_rich(&dom);
-        let inner = root.find("b").find("x").find("y").inner_text();
-        println!("{:?}", inner);
+        let inner = root.find("b").find("x").find("y");
+        assert!(inner.n.is_some());
+        let inner = root.find("nsaedoi");
+        assert!(inner.n.is_none());
+        let inner = root.find("b").find("c").find_all("d");
+        assert_eq!(inner.len(), 2);
+        assert_eq!(inner[0].inner_text().unwrap(), "d1".to_string());
     }
 }
