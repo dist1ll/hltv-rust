@@ -23,6 +23,15 @@ fn parse_team(h: RichNode, team_id: &str) -> Option<Team> {
     })
 }
 
+/// Parses the match ID from the given root node
+fn parse_id(h: RichNode) -> Result<u32, Error> {
+    let href = h.find("match").get_attr_str("href").ok_or(Error::ParseError)?;
+    match href.split('/').nth(1).ok_or(Error::ParseError)?.parse() {
+        Ok(x) => Ok(x),
+        Err(_) => Err(Error::ParseError),
+    }
+}
+
 /// Returns the number of stars in an upcoming match. Returns errors if
 /// the stars information is missing or the attribute cannot be parsed.
 fn parse_stars(d: &tl::VDom, h: tl::NodeHandle) -> Result<u32, Error> {
@@ -45,5 +54,11 @@ mod tests {
         let input = include_str!("../testdata/matches.html");
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
         let result = UpcomingMatch::convert(dom).unwrap();
+    }
+
+    #[test]
+    pub fn abc() {
+        let href = "matches/123/nsaoenas".split('/').nth(1);
+        println!("{:?}", href);
     }
 }

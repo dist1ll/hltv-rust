@@ -87,18 +87,21 @@ impl<'a> RichNode<'a> {
             .collect()
     }
 
+    pub fn get_attr_str(&self, attr: &str) -> Option<String> {
+        let tag = self
+            .n
+            .and_then(|n| n.get(self.d.parser()))?
+            .as_tag()?;
+
+        let result = tag.attributes().get(attr).flatten()?;
+        Some(result.as_utf8_str().to_string())
+    }
+
     pub fn get_attr<T>(&self, attr: &str) -> Result<Option<T>, Error>
     where
         T: FromStr,
-    {
-        let tag = self
-            .n
-            .and_then(|n| n.get(self.d.parser()))
-            .ok_or(Error::ParseError)?
-            .as_tag()
-            .ok_or(Error::ParseError)?;
-
-        let s = tag.get_attr_str(attr);
+    {     
+        let s = self.get_attr_str(attr);
         if s.is_none() {
             return Ok(None);
         }
