@@ -13,14 +13,14 @@ impl<'a> ConvertCollection<'a> for UpcomingMatch {
         let match_containers = d.query_selector("div.upcomingMatch").unwrap();
         for c in match_containers {
             let h = c.to_rich(&d);
-            result.push(UpcomingMatch{
-                id: parse_id(h)?, 
-                stars: 0, 
+            result.push(UpcomingMatch {
+                id: parse_id(h)?,
+                stars: parse_stars(&d, c)?,
                 team1: parse_team(h, "team1"),
                 team2: parse_team(h, "team2"),
                 event: parse_event(h)?,
                 format: MatchFormat::Bo1,
-                date: DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(61, 0), Utc),
+                date: parse_date(h)?,
             })
         }
         Ok(result)
@@ -30,18 +30,34 @@ impl<'a> ConvertCollection<'a> for UpcomingMatch {
 /// Returns a Team contained in the NodeHandle. Use tag `"team1"` or `"team2"`
 /// to search for either.
 fn parse_team(h: RichNode, team_id: &str) -> Option<Team> {
-    Some(Team{
-        id:  h.get_attr(team_id).unwrap_or(None)?,
+    Some(Team {
+        id: h.get_attr(team_id).unwrap_or(None)?,
         name: h.find(team_id).find("matchTeamName").inner_text()?,
     })
 }
 
+/// Parses the match date time.
+fn parse_date(h: RichNode) -> Result<DateTime<Utc>, Error> {
+    let time: i64 = h
+        .get_attr::<i64>("data-zonedgrouping-entry-unix")?
+        .ok_or_else(|| Error::ConversionError("time is not set in div".to_string()))?;
+    Ok(DateTime::<Utc>::from_utc(
+        NaiveDateTime::from_timestamp(time / 1000, 0),
+        Utc,
+    ))
+}
+
 /// Parses the match ID from the given root node
 fn parse_id(h: RichNode) -> Result<u32, Error> {
-    let href = h.find("match").get_attr_str("href").ok_or(Error::ParseError)?;
+    let href = h
+        .find("match")
+        .get_attr_str("href")
+        .ok_or(Error::ParseError)?;
     match href.split('/').nth(2).ok_or(Error::ParseError)?.parse() {
         Ok(x) => Ok(x),
-        Err(_) => Err(Error::ConversionError("match ID couldn't be parsed".to_string())),
+        Err(_) => Err(Error::ConversionError(
+            "match ID isn't a valid number".to_string(),
+        )),
     }
 }
 
@@ -55,7 +71,9 @@ fn parse_event(h: RichNode) -> Result<String, Error> {
             let m = h.find("match").find("matchInfoEmpty");
             match m.n {
                 Some(_) => m.inner_text().ok_or(Error::ParseError),
-                None => Err(Error::ConversionError("no event description found".to_string())),
+                None => Err(Error::ConversionError(
+                    "no event description found".to_string(),
+                )),
             }
         }
     }
@@ -87,7 +105,5 @@ mod tests {
     }
 
     #[test]
-    pub fn abc() {
-
-    }
+    pub fn abc() {}
 }
