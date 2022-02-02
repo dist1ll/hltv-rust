@@ -6,6 +6,7 @@ Types for esports data from HLTV.
 use chrono::{DateTime, Utc};
 
 /// Type of event. At this moment either LAN or online.
+#[derive(Debug)]
 pub enum EventType {
     LAN,
     Online,
@@ -13,6 +14,7 @@ pub enum EventType {
 
 /// Best-of-X format of a match. Since there are 7 maps in the CSGO map pool,
 /// the maximum is Bo7.
+#[derive(Debug)]
 pub enum MatchFormat {
     Bo1,
     Bo3,
@@ -28,6 +30,7 @@ pub struct Player {
 }
 
 /// Basic information about a team.
+#[derive(Debug)]
 pub struct Team {
     /// HLTV-associated ID (found in the URL of team page).
     pub id: u32,
@@ -36,6 +39,7 @@ pub struct Team {
 }
 
 /// Basic information about a team.
+#[derive(Debug)]
 pub struct Event {
     /// HLTV-associated ID (found in the URL of the event page).
     pub id: u32,
@@ -66,6 +70,7 @@ pub struct TeamDetails {
 }
 
 /// Contains a summary of an upcoming match ([reference](https://www.hltv.org/matches)).
+#[derive(Debug)]
 pub struct UpcomingMatch {
     pub id: u32,
     /// First team of the mach, according to HLTV's display order

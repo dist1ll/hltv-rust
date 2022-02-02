@@ -60,7 +60,7 @@ impl NodeHandleExtension for NodeHandle {
 
 /// A node that also has a VDom reference. Can be used to chain
 /// find calls
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct RichNode<'a> {
     pub d: &'a VDom<'a>,
     pub n: Option<NodeHandle>,
