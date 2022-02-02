@@ -68,7 +68,7 @@ fn parse_event(h: RichNode) -> Result<String, Error> {
         Some(_) => m.inner_text().ok_or(Error::ParseError),
         None => {
             // If teams are unknown, need to match for different classes.
-            let m = h.find("match").find("matchInfoEmpty");
+            let m = h.find("match").find("matchInfoEmpty").find("line-clamp-3");
             match m.n {
                 Some(_) => m.inner_text().ok_or(Error::ParseError),
                 None => Err(Error::ConversionError(
@@ -101,7 +101,15 @@ mod tests {
         let input = include_str!("../testdata/matches.html");
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
         let result = UpcomingMatch::convert(dom).unwrap();
-        println!("{:?}", result);
+        assert_eq!(result.len(), 2);
+        // test existance of teams
+        assert!(result[1].team1.is_none() && result[1].team2.is_none());
+        // test team data
+        assert_eq!(*result[0].team1.as_ref().unwrap(), Team{id: 6667, name: "FaZe".to_string()});
+        assert_eq!(*result[0].team2.as_ref().unwrap(), Team{id: 5973, name: "Liquid".to_string()});
+        // test match ID
+        assert_eq!(result[0].id, 2353980);
+        assert_eq!(result[1].id, 2353979);
     }
 
     #[test]

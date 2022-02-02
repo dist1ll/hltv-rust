@@ -30,7 +30,7 @@ pub struct Player {
 }
 
 /// Basic information about a team.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Team {
     /// HLTV-associated ID (found in the URL of team page).
     pub id: u32,
