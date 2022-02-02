@@ -32,6 +32,21 @@ fn parse_id(h: RichNode) -> Result<u32, Error> {
     }
 }
 
+fn parse_event(h: RichNode) -> Result<String, Error> {
+    let m = h.find("matchEvent").find("matchEventName");
+    match m.n {
+        Some(_) => m.inner_text().ok_or(Error::ParseError),
+        None => {
+            // If teams are unknown, need to match for different classes.
+            let m = h.find("matchInfo").find("matchInfoEmpty");
+            match m.n {
+                Some(_) => m.inner_text().ok_or(Error::ParseError),
+                None => Err(Error::ConversionError("no event description found".to_string())),
+            }
+        }
+    }
+}
+
 /// Returns the number of stars in an upcoming match. Returns errors if
 /// the stars information is missing or the attribute cannot be parsed.
 fn parse_stars(d: &tl::VDom, h: tl::NodeHandle) -> Result<u32, Error> {
