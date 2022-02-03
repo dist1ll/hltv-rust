@@ -7,12 +7,12 @@ use crate::Error;
 use crate::tl_extensions::*;
 
 impl<'a> ConvertCollection<'a> for Player {
-    fn convert(d: tl::VDom<'a>) -> Result<Vec<Player>, Error> {
+    fn convert(d: &'a tl::VDom<'a>) -> Result<Vec<Player>, Error> {
         let mut result = Vec::<Player>::new();
         // query selector for match page
-        for_teampage(&d, &mut result)?;
+        for_teampage(d, &mut result)?;
        // query selector for team page
-        for_matchpage(&d, &mut result)?;
+        for_matchpage(d, &mut result)?;
 
         Ok(result)
     }
@@ -92,7 +92,7 @@ mod tests {
     pub fn player_match() {
         let input = include_str!("../testdata/player_match.html");
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
-        let result = Player::convert(dom).unwrap();
+        let result = Player::convert(&dom).unwrap();
         assert_eq!(result.len(), 2);
         assert_eq!(
             result[0],
@@ -115,7 +115,7 @@ mod tests {
     pub fn player_team() {
         let input = include_str!("../testdata/player_team.html");
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
-        let result = Player::convert(dom).unwrap();
+        let result = Player::convert(&dom).unwrap();
         assert_eq!(result.len(), 3);
         assert_eq!(
             result[0],

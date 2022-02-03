@@ -59,7 +59,7 @@ where
 {
     /// Converts a given VDOM into a vector of its own type. This is because
     /// them DOM can contain multiple instances of that type.
-    fn convert(d: tl::VDom<'a>) -> Result<Vec<Self>, crate::Error>;
+    fn convert(d: &'a tl::VDom<'a>) -> Result<Vec<Self>, crate::Error>;
 }
 
 /// Implements a conversion from a DOM object to a single instance of its own type.

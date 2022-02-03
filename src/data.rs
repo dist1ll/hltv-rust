@@ -93,11 +93,13 @@ pub struct UpcomingMatch {
 
 /// Contains a summary of a concluded match ([reference](https://www.hltv.org/results)).
 pub struct MatchResult {
+    pub id: u32,
+    /// Enum which Team won
     pub winner: WhichTeam,
     /// Name of team 1. The result page doesn't contain team IDs unfortunately.
-    pub team1: Option<String>,
+    pub team1: String,
     /// Name of team 2. The result page doesn't contain team IDs unfortunately.
-    pub team2: Option<String>,
+    pub team2: String,
     /// Either a match score for bo3 and higher, or a map score for bo1s.
     pub score1: u32,
     /// Either a match score for bo3 and higher, or a map score for bo1s.

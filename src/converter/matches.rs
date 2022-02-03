@@ -8,14 +8,14 @@ use crate::ConvertCollection;
 use crate::Error;
 
 impl<'a> ConvertCollection<'a> for UpcomingMatch {
-    fn convert(d: tl::VDom<'a>) -> Result<Vec<UpcomingMatch>, Error> {
+    fn convert(d: &'a tl::VDom<'a>) -> Result<Vec<UpcomingMatch>, Error> {
         let mut result = Vec::<UpcomingMatch>::new();
         let match_containers = d.query_selector("div.upcomingMatch").unwrap();
         for c in match_containers {
-            let h = c.to_rich(&d);
+            let h = c.to_rich(d);
             result.push(UpcomingMatch {
                 id: parse_id(h)?,
-                stars: parse_stars(&d, c)?,
+                stars: parse_stars(d, c)?,
                 team1: parse_team(h, "team1"),
                 team2: parse_team(h, "team2"),
                 event: parse_event(h)?,
@@ -100,7 +100,7 @@ mod tests {
     pub fn matches() {
         let input = include_str!("../testdata/matches.html");
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
-        let result = UpcomingMatch::convert(dom).unwrap();
+        let result = UpcomingMatch::convert(&dom).unwrap();
         assert_eq!(result.len(), 2);
         // test existance of teams
         assert!(result[1].team1.is_none() && result[1].team2.is_none());
