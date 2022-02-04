@@ -23,7 +23,11 @@ fn get_roots<'a>(d: &'a tl::VDom<'a>) -> QuerySelectorIterator<tl::VDom>{
     d.query_selector("div.result-con").unwrap()
 }
 
-/// Parses the match ID from the given root node
+fn parse_team(h: RichNode, team_id: &'static str) -> Result<u32, Error> {
+    h.find(team_id).find("team");
+    Ok(0)
+}
+
 fn parse_id(h: RichNode) -> Result<u32, Error> {
     let href = h
         .find("a-reset")

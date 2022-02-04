@@ -88,10 +88,7 @@ impl<'a> RichNode<'a> {
     }
 
     pub fn get_attr_str(&self, attr: &str) -> Option<String> {
-        let tag = self
-            .n
-            .and_then(|n| n.get(self.d.parser()))?
-            .as_tag()?;
+        let tag = self.n.and_then(|n| n.get(self.d.parser()))?.as_tag()?;
 
         let result = tag.attributes().get(attr).flatten()?;
         Some(result.as_utf8_str().to_string())
@@ -100,7 +97,7 @@ impl<'a> RichNode<'a> {
     pub fn get_attr<T>(&self, attr: &str) -> Result<Option<T>, Error>
     where
         T: FromStr,
-    {     
+    {
         let s = self.get_attr_str(attr);
         if s.is_none() {
             return Ok(None);
@@ -111,8 +108,18 @@ impl<'a> RichNode<'a> {
         }
     }
 
+    pub fn has_class(self, class: &'static str) -> Option<bool> {
+        Some(self.n?
+            .get(self.d.parser())?
+            .as_tag()?
+            .attributes()
+            .is_class_member(class))
+    }
+
     pub fn inner_text(self) -> Option<String> {
-        self.n.and_then(|n| n.inner_text(self.d.parser())).map(|c| c.to_string())
+        self.n
+            .and_then(|n| n.inner_text(self.d.parser()))
+            .map(|c| c.to_string())
     }
 
     pub fn get(self) -> Option<&'a Node<'a>> {
@@ -214,5 +221,16 @@ mod tests {
         let inner = root.find("b").find("c").find_all("d");
         assert_eq!(inner.len(), 2);
         assert_eq!(inner[0].inner_text().unwrap(), "d1".to_string());
+    }
+
+    #[test]
+    pub fn has_class() {
+        let input = include_str!("./testdata/rich.html");
+        let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
+        let root = dom.get_element_by_id("has-class").unwrap().to_rich(&dom);
+        let n = root.find("first");
+        assert!(n.has_class("first").unwrap());
+        assert!(n.has_class("second").unwrap());
+        assert!(!n.has_class("third").unwrap());
     }
 }
