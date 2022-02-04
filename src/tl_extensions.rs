@@ -160,7 +160,7 @@ fn dfs<'a>(h: NodeHandle, dom: &'a VDom<'a>, class: &str, result: &mut Vec<NodeH
     }
 
     // otherwise, iterate over all children
-    for c in children.unwrap() {
+    for &c in children.unwrap().top().iter() {
         dfs(c, dom, class, result);
     }
 }
@@ -175,7 +175,7 @@ fn dfs_first<'a>(h: NodeHandle, dom: &'a VDom<'a>, class: &str) -> Option<NodeHa
     let children = h.get(dom.parser()).unwrap().children()?;
 
     // otherwise, iterate over all children
-    for c in children {
+    for &c in children.top().iter() {
         if let Some(x) = dfs_first(c, dom, class) {
             return Some(x);
         }
@@ -198,8 +198,7 @@ mod tests {
         );
         let node = dom.select_first(dom.children()[0], "abc").unwrap();
         assert_eq!(node.inner_text(dom.parser()).unwrap(), "dist1ll");
-
-        let nodes = dom.select_nodes(dom.children()[1], "abc");
+        let nodes = dom.select_nodes(dom.children()[2], "abc");
         assert_eq!(nodes.len(), 1);
     }
 

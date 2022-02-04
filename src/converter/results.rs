@@ -1,3 +1,5 @@
+use tl::queryselector::QuerySelectorIterator;
+
 use crate::data::*;
 use crate::tl_extensions::*;
 use crate::ConvertCollection;
@@ -6,9 +8,9 @@ use crate::Error;
 impl<'a> ConvertCollection<'a> for MatchResult {
     fn convert(d: &'a tl::VDom<'a>) -> Result<Vec<MatchResult>, Error> {
         let mut result = Vec::<MatchResult>::new();
-        let match_containers = d.query_selector("div.result-con").unwrap();
+        let match_containers = get_roots(d);
         for c in match_containers {
-            let h = c.to_rich(&d);
+            let h = c.to_rich(d);
             println!("{:?}", parse_id(h));
         }
         Ok(result)
@@ -17,7 +19,8 @@ impl<'a> ConvertCollection<'a> for MatchResult {
 
 /// Returns the an iterator over roots of interest (i.e. the containers of
 /// results).
-fn get_root() {
+fn get_roots<'a>(d: &'a tl::VDom<'a>) -> QuerySelectorIterator<tl::VDom>{
+    d.query_selector("div.result-con").unwrap()
 }
 
 /// Parses the match ID from the given root node
@@ -48,5 +51,11 @@ mod tests {
     }
 
     #[test]
-    pub fn abc() {}
+    pub fn xyz() {
+        let input = include_str!("../testdata/results.html");
+        let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
+        let mut x = get_roots(&dom);
+        println!("{:?}", x.next().unwrap());
+        println!("{:?}", x.next().unwrap());
+    }
 }

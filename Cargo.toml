@@ -17,5 +17,5 @@ doctest = false
 [dependencies]
 attohttpc = "0.18"
 chrono = "0.4"
-tl = "0.5"
+tl = "0.6"
 substring = "1.4.5"

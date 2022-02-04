@@ -11,7 +11,7 @@ impl<'a> ConvertCollection<'a> for Player {
         let mut result = Vec::<Player>::new();
         // query selector for match page
         for_teampage(d, &mut result)?;
-       // query selector for team page
+        // query selector for team page
         for_matchpage(d, &mut result)?;
 
         Ok(result)
@@ -22,27 +22,16 @@ impl<'a> ConvertCollection<'a> for Player {
 fn for_matchpage(d: &tl::VDom, r: &mut Vec<Player>) -> Result<(), Error> {
     let selector = d.query_selector("td.player").unwrap();
     for x in selector {
-        let node = x.get(d.parser()).unwrap();
-        let id = node
-            .children()
-            .and_then(|mut i| i.next())
-            .and_then(|h| h.get(d.parser()))
-            .and_then(|n| n.as_tag())
-            .and_then(|t| t.attributes().get("data-player-id"))
-            .flatten();
-
-        let mut p = Player::default();
-
-        if let Some(bytes) = &id {
-            let s = bytes.as_utf8_str();
-            p.id = s.parse().unwrap();
-        } else {
-            return Err(Error::ConversionError("ID couldn't be parsed".to_string()));
-        }
-
-        let s = node.inner_text(d.parser()).to_string();
-        p.nickname = s;
-        r.push(p);
+        let node = x.to_rich(d);
+        let id: u32 = match node.find("flagAlign").get_attr("data-player-id")? {
+            Some(x) => x,
+            None => return Err(Error::ConversionError("No ID found for player".to_string())),
+        };
+        let nickname = node
+            .find("text-ellipsis")
+            .inner_text()
+            .ok_or(Error::ConversionError("No player name found".to_string()))?;
+        r.push(Player { id, nickname });
     }
     Ok(())
 }
@@ -59,12 +48,20 @@ fn for_teampage(d: &tl::VDom, r: &mut Vec<Player>) -> Result<(), Error> {
 
         let name: String = match tag.get_attr_str("title") {
             Some(x) => x,
-            None => return Err(Error::ConversionError("missing title attribute in player div".to_string())),
+            None => {
+                return Err(Error::ConversionError(
+                    "missing title attribute in player div".to_string(),
+                ))
+            }
         };
 
         let mut id: String = match tag.get_attr_str("href") {
             Some(x) => x,
-            None => return Err(Error::ConversionError("missing href link in player div".to_string())),
+            None => {
+                return Err(Error::ConversionError(
+                    "missing href link in player div".to_string(),
+                ))
+            }
         };
 
         id = id
@@ -74,7 +71,11 @@ fn for_teampage(d: &tl::VDom, r: &mut Vec<Player>) -> Result<(), Error> {
         let p = Player {
             id: match id.parse() {
                 Ok(id) => id,
-                _ => return Err(Error::ConversionError("incorrect ID / format of href was changed".to_string())),
+                _ => {
+                    return Err(Error::ConversionError(
+                        "incorrect ID / format of href was changed".to_string(),
+                    ))
+                }
             },
             nickname: name,
         };
