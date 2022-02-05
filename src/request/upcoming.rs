@@ -13,7 +13,7 @@ impl From<UpcomingRB> for String {
             return "matches?predefinedFilter=top_tier".to_string();
         }
         let mut result = String::from("matches?");
-        result += &format!("&eventType={}", d.event_filter);
+        result += &format!("eventType={}", d.event_filter);
         for &ev in d.events.iter() {
             result += &format!("&event={}", ev);
         }

@@ -19,7 +19,7 @@ impl<T: ConvertCollection, V: Into<String>> RequestBuilder<T, V> {
     /// Creates a Request object for upcoming matches
     pub fn build(self) -> Request<T> {
         Request::<T> {
-            url: self.data.into(),
+            url: format!("{}{}", HLTV_ROOT, self.data.into()),
             _m: PhantomData,
         }
     }

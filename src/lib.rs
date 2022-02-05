@@ -75,6 +75,7 @@ where
 
 /// A reusable request object, that fetches, parses and converts HLTV data
 /// to the correct type.
+#[derive(Debug)]
 pub struct Request<T>
 where
     T: ConvertCollection,
