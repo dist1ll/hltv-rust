@@ -19,15 +19,28 @@ impl<'a> ConvertCollection<'a> for MatchResult {
 
 /// Returns the an iterator over roots of interest (i.e. the containers of
 /// results).
-fn get_roots<'a>(d: &'a tl::VDom<'a>) -> QuerySelectorIterator<tl::VDom>{
+fn get_roots<'a>(d: &'a tl::VDom<'a>) -> QuerySelectorIterator<tl::VDom> {
     d.query_selector("div.result-con").unwrap()
 }
 
-fn parse_team(h: RichNode, team_id: &'static str) -> Result<u32, Error> {
-    h.find(team_id).find("team");
-    Ok(0)
+fn parse_team(h: RichNode, team_id: &'static str) -> Result<String, Error> {
+    h.find(team_id)
+        .find("team")
+        .inner_text()
+        .ok_or_else(|| Error::ConversionError("No team name found".to_string()))
 }
 
+fn parse_which(h: RichNode) -> Result<WhichTeam, Error> {
+    let res = h
+        .find("team1")
+        .find("team")
+        .has_class("team-won")
+        .ok_or_else(|| Error::ConversionError("team format incorrect".to_string()))?;
+    match res {
+        true => Ok(WhichTeam::First),
+        false => Ok(WhichTeam::Second),
+    }
+}
 fn parse_id(h: RichNode) -> Result<u32, Error> {
     let href = h
         .find("a-reset")
@@ -40,7 +53,6 @@ fn parse_id(h: RichNode) -> Result<u32, Error> {
         )),
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -58,8 +70,7 @@ mod tests {
     pub fn xyz() {
         let input = include_str!("../testdata/results.html");
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
-        let mut x = get_roots(&dom);
-        println!("{:?}", x.next().unwrap());
-        println!("{:?}", x.next().unwrap());
+        let mut x = get_roots(&dom).nth(1).unwrap().to_rich(&dom);
+        println!("{:?}", parse_which(x).unwrap());
     }
 }

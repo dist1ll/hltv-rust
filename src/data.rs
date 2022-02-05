@@ -124,6 +124,7 @@ pub struct MatchDetails {
 }
 
 /// Refers to either the first or second team in a match, according to HLTV order.
+#[derive(Debug)]
 pub enum WhichTeam {
     First,
     Second,
