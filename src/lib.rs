@@ -28,19 +28,19 @@ contains less information in the HTML document than the detailed match-specific 
 ```
 */
 #![allow(dead_code)]
+#![feature(derive_default_enum)]
 
 use std::marker::PhantomData;
 
 pub mod converter;
-
-// Extensions to make the [`tl`] crate more ergonomic. 
+pub mod data;
+// Extensions to make the [`tl`] crate more ergonomic.
 mod tl_extensions;
 
+// Export builder methods
 mod request;
-pub use request::*;
-
-pub mod data;
-pub use data::EventType;
+pub use request::upcoming::upcoming;
+pub use request::EventTypeFilter;
 
 /// Errors that happen during request, parse or conversion of data.
 #[derive(Debug)]
@@ -52,7 +52,6 @@ pub enum Error {
     /// Parsed document can't be converted into target type.
     ConversionError(&'static str),
 }
-
 
 /// Implements a conversion from a DOM object to a collection of its own type.
 pub trait ConvertCollection

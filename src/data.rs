@@ -12,14 +12,6 @@ pub enum EventType {
     Online,
 }
 
-impl From<EventType> for &str {
-    fn from(e: EventType) -> Self {
-        match e {
-            EventType::LAN => "LAN",
-            EventType::Online => "Online",
-        }
-    }
-}
 /// Best-of-X format of a match. Since there are 7 maps in the CSGO map pool,
 /// the maximum is Bo7.
 #[derive(Debug, PartialEq)]
