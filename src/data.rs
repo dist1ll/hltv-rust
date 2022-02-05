@@ -120,7 +120,7 @@ pub struct Score {
 
 /// Contains detailed information about a match. Corresponds to data found on [HLTV's
 /// match page](https://www.hltv.org/matches/2239492/nip-vs-virtuspro-sltv-starseries-v-finals).
-pub struct MatchDetails {
+pub struct MatchPage {
     pub id: u32,
     pub team1: Option<Team>,
     pub team2: Option<Team>,

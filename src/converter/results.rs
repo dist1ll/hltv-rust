@@ -5,8 +5,8 @@ use crate::tl_extensions::*;
 use crate::ConvertCollection;
 use crate::{Error, Error::ConversionError};
 
-impl<'a> ConvertCollection<'a> for MatchResult {
-    fn convert(d: &'a tl::VDom<'a>) -> Result<Vec<MatchResult>, Error> {
+impl ConvertCollection for MatchResult {
+    fn convert<'a>(d: &'a tl::VDom<'a>) -> Result<Vec<MatchResult>, Error> {
         let mut result = Vec::<MatchResult>::new();
         let match_containers = get_roots(d);
         for c in match_containers {

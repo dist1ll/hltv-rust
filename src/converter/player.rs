@@ -1,13 +1,11 @@
-use substring::Substring;
-
 use crate::data::*;
 use crate::ConvertCollection;
 use crate::{Error, Error::ConversionError};
 
 use crate::tl_extensions::*;
 
-impl<'a> ConvertCollection<'a> for Player {
-    fn convert(d: &'a tl::VDom<'a>) -> Result<Vec<Player>, Error> {
+impl ConvertCollection for Player {
+    fn convert<'a>(d: &'a tl::VDom<'a>) -> Result<Vec<Player>, Error> {
         let mut result = Vec::<Player>::new();
         // query selector for match page
         for_teampage(d, &mut result)?;
@@ -51,15 +49,13 @@ fn for_teampage(d: &tl::VDom, r: &mut Vec<Player>) -> Result<(), Error> {
             None => return Err(ConversionError("missing title attribute in player div")),
         };
 
-        let mut id: String = match tag.get_attr_str("href") {
+        let id: String = match tag.get_attr_str("href") {
             Some(x) => x,
             None => return Err(ConversionError("missing href link in player div")),
         };
 
-        id = id
-            .substring(8, id.chars().count() - name.chars().count() - 1)
-            .to_string();
-
+        let id = id.split('/').nth(2).ok_or(Error::ParseError)?;
+       
         let p = Player {
             id: match id.parse() {
                 Ok(id) => id,

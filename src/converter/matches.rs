@@ -7,8 +7,8 @@ use crate::tl_extensions::*;
 use crate::ConvertCollection;
 use crate::{Error, Error::ConversionError};
 
-impl<'a> ConvertCollection<'a> for UpcomingMatch {
-    fn convert(d: &'a tl::VDom<'a>) -> Result<Vec<UpcomingMatch>, Error> {
+impl ConvertCollection for UpcomingMatch {
+    fn convert<'a>(d: &'a tl::VDom<'a>) -> Result<Vec<UpcomingMatch>, Error> {
         let mut result = Vec::<UpcomingMatch>::new();
         let match_containers = d.query_selector("div.upcomingMatch").unwrap();
         for c in match_containers {

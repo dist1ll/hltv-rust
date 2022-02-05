@@ -53,13 +53,13 @@ pub enum Error {
 
 
 /// Implements a conversion from a DOM object to a collection of its own type.
-pub trait ConvertCollection<'a>
+pub trait ConvertCollection
 where
     Self: Sized,
 {
     /// Converts a given VDOM into a vector of its own type. This is because
     /// them DOM can contain multiple instances of that type.
-    fn convert(d: &'a tl::VDom<'a>) -> Result<Vec<Self>, crate::Error>;
+    fn convert<'a>(d: &'a tl::VDom<'a>) -> Result<Vec<Self>, crate::Error>;
 }
 
 /// Implements a conversion from a DOM object to a single instance of its own type.
@@ -74,21 +74,21 @@ where
 
 /// A reusable request object, that fetches, parses and converts HLTV data
 /// to the correct type.
-pub struct Request<'a, T>
+pub struct Request<T>
 where
-    T: ConvertCollection<'a>,
+    T: ConvertCollection,
 {
     url: String,
-    _m: PhantomData<&'a T>,
+    _m: PhantomData<T>,
 }
 
-impl<'a, T> Request<'a, T>
+impl<T> Request<T>
 where
-    T: ConvertCollection<'a>,
+    T: ConvertCollection,
 {
     /// Creates a new request object with given url and conversion type.
-    pub fn new(url: String) -> Request<'a, T> {
-        Request::<'a, T> {
+    pub fn new(url: String) -> Request<T> {
+        Request::<T> {
             url,
             _m: PhantomData,
         }
