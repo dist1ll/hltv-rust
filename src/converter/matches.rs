@@ -55,9 +55,7 @@ fn parse_id(h: RichNode) -> Result<u32, Error> {
         .ok_or(Error::ParseError)?;
     match href.split('/').nth(2).ok_or(Error::ParseError)?.parse() {
         Ok(x) => Ok(x),
-        Err(_) => Err(ConversionError(
-            "match ID isn't a valid number",
-        )),
+        Err(_) => Err(ConversionError("match ID isn't a valid number")),
     }
 }
 
@@ -71,9 +69,7 @@ fn parse_event(h: RichNode) -> Result<String, Error> {
             let m = h.find("match").find("matchInfoEmpty").find("line-clamp-3");
             match m.n {
                 Some(_) => m.inner_text().ok_or(Error::ParseError),
-                None => Err(ConversionError(
-                    "no event description found",
-                )),
+                None => Err(ConversionError("no event description found")),
             }
         }
     }
@@ -85,9 +81,7 @@ fn parse_stars(d: &tl::VDom, h: tl::NodeHandle) -> Result<u32, Error> {
     let tag = h.get(d.parser()).unwrap().as_tag().unwrap();
     match tag.get_attr("stars")? {
         Some(x) => Ok(x),
-        None => Err(ConversionError(
-            "no stars attribute in div.upcomingMatch",
-        )),
+        None => Err(ConversionError("no stars attribute in div.upcomingMatch")),
     }
 }
 
@@ -105,8 +99,20 @@ mod tests {
         // test existance of teams
         assert!(result[1].team1.is_none() && result[1].team2.is_none());
         // test team data
-        assert_eq!(*result[0].team1.as_ref().unwrap(), Team{id: 6667, name: "FaZe".to_string()});
-        assert_eq!(*result[0].team2.as_ref().unwrap(), Team{id: 5973, name: "Liquid".to_string()});
+        assert_eq!(
+            *result[0].team1.as_ref().unwrap(),
+            Team {
+                id: 6667,
+                name: "FaZe".to_string()
+            }
+        );
+        assert_eq!(
+            *result[0].team2.as_ref().unwrap(),
+            Team {
+                id: 5973,
+                name: "Liquid".to_string()
+            }
+        );
         // test match ID
         assert_eq!(result[0].id, 2353980);
         assert_eq!(result[1].id, 2353979);

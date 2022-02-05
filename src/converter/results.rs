@@ -11,7 +11,15 @@ impl<'a> ConvertCollection<'a> for MatchResult {
         let match_containers = get_roots(d);
         for c in match_containers {
             let h = c.to_rich(d);
-            println!("{:?}", parse_id(h));
+            result.push(MatchResult {
+                id: parse_id(h)?,
+                winner: parse_which(h)?,
+                team1: parse_team(h, "team1")?,
+                team2: parse_team(h, "team2")?,
+                score: parse_score(h)?,
+                event: parse_event(h)?,
+                format: parse_format(h)?,
+            })
         }
         Ok(result)
     }
@@ -21,6 +29,20 @@ impl<'a> ConvertCollection<'a> for MatchResult {
 /// results).
 fn get_roots<'a>(d: &'a tl::VDom<'a>) -> QuerySelectorIterator<tl::VDom> {
     d.query_selector("div.result-con").unwrap()
+}
+
+fn parse_format(h: RichNode) -> Result<MatchFormat, Error> {
+    match h
+        .find("map-text")
+        .inner_text()
+        .ok_or(ConversionError("match format can't be found"))?
+        .as_str()
+    {
+        "bo3" => Ok(MatchFormat::Bo3),
+        "bo5" => Ok(MatchFormat::Bo5),
+        "bo7" => Ok(MatchFormat::Bo7),
+        _ => Ok(MatchFormat::Bo1),
+    }
 }
 
 fn parse_score(h: RichNode) -> Result<Score, Error> {
@@ -68,9 +90,7 @@ fn parse_id(h: RichNode) -> Result<u32, Error> {
         .ok_or(Error::ParseError)?;
     match href.split('/').nth(2).ok_or(Error::ParseError)?.parse() {
         Ok(x) => Ok(x),
-        Err(_) => Err(ConversionError(
-            "match ID isn't a valid number",
-        )),
+        Err(_) => Err(ConversionError("match ID isn't a valid number")),
     }
 }
 
@@ -84,13 +104,39 @@ mod tests {
         let input = include_str!("../testdata/results.html");
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
         let result = MatchResult::convert(&dom).unwrap();
+        assert_eq!(result.len(), 2);
+
+        assert_eq!(
+            result[0],
+            MatchResult {
+                id: 123456,
+                winner: WhichTeam::First,
+                team1: "Stars Horizon".to_string(),
+                team2: "Redragon".to_string(),
+                score: Score {
+                    score_won: 2,
+                    score_lost: 0
+                },
+                event: "Liga Gamers Club 2022 Serie A January Cup".to_string(),
+                format: MatchFormat::Bo3,
+            }
+        );
+
+        assert_eq!(
+            result[1],
+            MatchResult {
+                id: 2354179,
+                winner: WhichTeam::First,
+                team1: "Dignitas".to_string(),
+                team2: "HAVU".to_string(),
+                score: Score {
+                    score_won: 16,
+                    score_lost: 10
+                },
+                event: "Elisa Invitational Winter 2021 Main Qualifier".to_string(),
+                format: MatchFormat::Bo1,
+            }
+        );
     }
 
-    #[test]
-    pub fn xyz() {
-        let input = include_str!("../testdata/results.html");
-        let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
-        let mut x = get_roots(&dom).nth(1).unwrap().to_rich(&dom);
-        println!("{:?}", parse_event(x).unwrap());
-    }
 }

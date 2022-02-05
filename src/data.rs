@@ -14,7 +14,7 @@ pub enum EventType {
 
 /// Best-of-X format of a match. Since there are 7 maps in the CSGO map pool,
 /// the maximum is Bo7.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum MatchFormat {
     Bo1,
     Bo3,
@@ -92,6 +92,7 @@ pub struct UpcomingMatch {
 }
 
 /// Contains a summary of a concluded match ([reference](https://www.hltv.org/results)).
+#[derive(Debug, PartialEq)]
 pub struct MatchResult {
     pub id: u32,
     /// Enum which Team won
@@ -111,7 +112,7 @@ pub struct MatchResult {
 }
 
 /// A general W-L match score
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Score {
     pub score_won: u32,
     pub score_lost: u32,
@@ -129,7 +130,7 @@ pub struct MatchDetails {
 }
 
 /// Refers to either the first or second team in a match, according to HLTV order.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum WhichTeam {
     First,
     Second,
