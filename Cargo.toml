@@ -15,6 +15,6 @@ categories = ["api-bindings"]
 doctest = false
 
 [dependencies]
-attohttpc = "0.18.0"
+reqwest = "0.11.9"
 chrono = "0.4.19"
 tl = "0.6.0"

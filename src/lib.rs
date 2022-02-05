@@ -36,9 +36,11 @@ pub mod converter;
 // Extensions to make the [`tl`] crate more ergonomic. 
 mod tl_extensions;
 
-// Make data available to the hltv crate.
-mod data;
-pub use data::*;
+mod request;
+pub use request::*;
+
+pub mod data;
+pub use data::EventType;
 
 /// Errors that happen during request, parse or conversion of data.
 #[derive(Debug)]
