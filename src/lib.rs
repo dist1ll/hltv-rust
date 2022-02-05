@@ -48,7 +48,7 @@ pub enum Error {
     /// HTML document is invalid. Refer to `tl::parse`.
     ParseError,
     /// Parsed document can't be converted into target type.
-    ConversionError(String),
+    ConversionError(&'static str),
 }
 
 

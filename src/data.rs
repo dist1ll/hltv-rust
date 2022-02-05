@@ -101,15 +101,20 @@ pub struct MatchResult {
     /// Name of team 2. The result page doesn't contain team IDs unfortunately.
     pub team2: String,
     /// Either a match score for bo3 and higher, or a map score for bo1s.
-    pub score1: u32,
-    /// Either a match score for bo3 and higher, or a map score for bo1s.
-    pub score2: u32,
+    pub score: Score,
     /// Name of the event
     pub event: String,
     /// Format of a match. For example, if the format is [`Bo1`][MatchFormat::Bo1],
     /// then only one map is played and the result is either a `1-0` or `0-1`.
     pub format: MatchFormat,
     
+}
+
+/// A general W-L match score
+#[derive(Debug)]
+pub struct Score {
+    pub score_won: u32,
+    pub score_lost: u32,
 }
 
 /// Contains detailed information about a match. Corresponds to data found on [HLTV's

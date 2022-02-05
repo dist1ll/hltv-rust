@@ -5,7 +5,7 @@ use chrono::Utc;
 use crate::data::*;
 use crate::tl_extensions::*;
 use crate::ConvertCollection;
-use crate::Error;
+use crate::{Error, Error::ConversionError};
 
 impl<'a> ConvertCollection<'a> for UpcomingMatch {
     fn convert(d: &'a tl::VDom<'a>) -> Result<Vec<UpcomingMatch>, Error> {
@@ -40,7 +40,7 @@ fn parse_team(h: RichNode, team_id: &str) -> Option<Team> {
 fn parse_date(h: RichNode) -> Result<DateTime<Utc>, Error> {
     let time: i64 = h
         .get_attr::<i64>("data-zonedgrouping-entry-unix")?
-        .ok_or_else(|| Error::ConversionError("time is not set in div".to_string()))?;
+        .ok_or(ConversionError("time is not set in div"))?;
     Ok(DateTime::<Utc>::from_utc(
         NaiveDateTime::from_timestamp(time / 1000, 0),
         Utc,
@@ -55,8 +55,8 @@ fn parse_id(h: RichNode) -> Result<u32, Error> {
         .ok_or(Error::ParseError)?;
     match href.split('/').nth(2).ok_or(Error::ParseError)?.parse() {
         Ok(x) => Ok(x),
-        Err(_) => Err(Error::ConversionError(
-            "match ID isn't a valid number".to_string(),
+        Err(_) => Err(ConversionError(
+            "match ID isn't a valid number",
         )),
     }
 }
@@ -71,8 +71,8 @@ fn parse_event(h: RichNode) -> Result<String, Error> {
             let m = h.find("match").find("matchInfoEmpty").find("line-clamp-3");
             match m.n {
                 Some(_) => m.inner_text().ok_or(Error::ParseError),
-                None => Err(Error::ConversionError(
-                    "no event description found".to_string(),
+                None => Err(ConversionError(
+                    "no event description found",
                 )),
             }
         }
@@ -85,8 +85,8 @@ fn parse_stars(d: &tl::VDom, h: tl::NodeHandle) -> Result<u32, Error> {
     let tag = h.get(d.parser()).unwrap().as_tag().unwrap();
     match tag.get_attr("stars")? {
         Some(x) => Ok(x),
-        None => Err(Error::ConversionError(
-            "no stars attribute in div.upcomingMatch".to_string(),
+        None => Err(ConversionError(
+            "no stars attribute in div.upcomingMatch",
         )),
     }
 }

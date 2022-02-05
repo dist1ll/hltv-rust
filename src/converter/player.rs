@@ -2,7 +2,7 @@ use substring::Substring;
 
 use crate::data::*;
 use crate::ConvertCollection;
-use crate::Error;
+use crate::{Error, Error::ConversionError};
 
 use crate::tl_extensions::*;
 
@@ -25,12 +25,12 @@ fn for_matchpage(d: &tl::VDom, r: &mut Vec<Player>) -> Result<(), Error> {
         let node = x.to_rich(d);
         let id: u32 = match node.find("flagAlign").get_attr("data-player-id")? {
             Some(x) => x,
-            None => return Err(Error::ConversionError("No ID found for player".to_string())),
+            None => return Err(ConversionError("No ID found for player")),
         };
         let nickname = node
             .find("text-ellipsis")
             .inner_text()
-            .ok_or(Error::ConversionError("No player name found".to_string()))?;
+            .ok_or(ConversionError("No player name found"))?;
         r.push(Player { id, nickname });
     }
     Ok(())
@@ -48,20 +48,12 @@ fn for_teampage(d: &tl::VDom, r: &mut Vec<Player>) -> Result<(), Error> {
 
         let name: String = match tag.get_attr_str("title") {
             Some(x) => x,
-            None => {
-                return Err(Error::ConversionError(
-                    "missing title attribute in player div".to_string(),
-                ))
-            }
+            None => return Err(ConversionError("missing title attribute in player div")),
         };
 
         let mut id: String = match tag.get_attr_str("href") {
             Some(x) => x,
-            None => {
-                return Err(Error::ConversionError(
-                    "missing href link in player div".to_string(),
-                ))
-            }
+            None => return Err(ConversionError("missing href link in player div")),
         };
 
         id = id
@@ -71,11 +63,7 @@ fn for_teampage(d: &tl::VDom, r: &mut Vec<Player>) -> Result<(), Error> {
         let p = Player {
             id: match id.parse() {
                 Ok(id) => id,
-                _ => {
-                    return Err(Error::ConversionError(
-                        "incorrect ID / format of href was changed".to_string(),
-                    ))
-                }
+                _ => return Err(ConversionError("incorrect ID / format of href was changed")),
             },
             nickname: name,
         };

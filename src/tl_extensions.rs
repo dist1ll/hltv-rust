@@ -116,6 +116,20 @@ impl<'a> RichNode<'a> {
             .is_class_member(class))
     }
 
+    pub fn inner_parse<T>(self) -> Result<Option<T>, Error>
+    where
+        T: FromStr,
+    {
+        let t = self.inner_text();
+        if t.is_none() {
+            return Ok(None);
+        }
+        match t.unwrap().parse::<T>() {
+            Ok(x) => Ok(Some(x)),
+            Err(_) => Err(Error::ParseError),
+        }
+    }
+
     pub fn inner_text(self) -> Option<String> {
         self.n
             .and_then(|n| n.inner_text(self.d.parser()))

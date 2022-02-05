@@ -3,7 +3,7 @@ use tl::queryselector::QuerySelectorIterator;
 use crate::data::*;
 use crate::tl_extensions::*;
 use crate::ConvertCollection;
-use crate::Error;
+use crate::{Error, Error::ConversionError};
 
 impl<'a> ConvertCollection<'a> for MatchResult {
     fn convert(d: &'a tl::VDom<'a>) -> Result<Vec<MatchResult>, Error> {
@@ -23,11 +23,30 @@ fn get_roots<'a>(d: &'a tl::VDom<'a>) -> QuerySelectorIterator<tl::VDom> {
     d.query_selector("div.result-con").unwrap()
 }
 
-fn parse_team(h: RichNode, team_id: &'static str) -> Result<String, Error> {
+fn parse_score(h: RichNode) -> Result<Score, Error> {
+    Ok(Score {
+        score_won: h
+            .find("score-won")
+            .inner_parse()?
+            .ok_or(ConversionError("no score-won found"))?,
+        score_lost: h
+            .find("score-lost")
+            .inner_parse()?
+            .ok_or(ConversionError("no score-lost found"))?,
+    })
+}
+
+fn parse_event(h: RichNode) -> Result<String, Error> {
+    h.find("event-name")
+        .inner_text()
+        .ok_or(ConversionError("no event name found"))
+}
+
+fn parse_team(h: RichNode, team_id: &str) -> Result<String, Error> {
     h.find(team_id)
         .find("team")
         .inner_text()
-        .ok_or_else(|| Error::ConversionError("No team name found".to_string()))
+        .ok_or(ConversionError("no team name found"))
 }
 
 fn parse_which(h: RichNode) -> Result<WhichTeam, Error> {
@@ -35,12 +54,13 @@ fn parse_which(h: RichNode) -> Result<WhichTeam, Error> {
         .find("team1")
         .find("team")
         .has_class("team-won")
-        .ok_or_else(|| Error::ConversionError("team format incorrect".to_string()))?;
+        .ok_or(ConversionError("team format incorrect"))?;
     match res {
         true => Ok(WhichTeam::First),
         false => Ok(WhichTeam::Second),
     }
 }
+
 fn parse_id(h: RichNode) -> Result<u32, Error> {
     let href = h
         .find("a-reset")
@@ -48,8 +68,8 @@ fn parse_id(h: RichNode) -> Result<u32, Error> {
         .ok_or(Error::ParseError)?;
     match href.split('/').nth(2).ok_or(Error::ParseError)?.parse() {
         Ok(x) => Ok(x),
-        Err(_) => Err(Error::ConversionError(
-            "match ID isn't a valid number".to_string(),
+        Err(_) => Err(ConversionError(
+            "match ID isn't a valid number",
         )),
     }
 }
@@ -71,6 +91,6 @@ mod tests {
         let input = include_str!("../testdata/results.html");
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
         let mut x = get_roots(&dom).nth(1).unwrap().to_rich(&dom);
-        println!("{:?}", parse_which(x).unwrap());
+        println!("{:?}", parse_event(x).unwrap());
     }
 }
