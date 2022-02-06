@@ -37,7 +37,36 @@ impl From<ResultRB> for String {
     }
 }
 
-/// Creates a request builder for upcoming matches.
+/// Use this to build requests for match results. To find out which builder methods
+/// exist, refer to the docs of [`RequestBuilder`].
+///
+/// # Example
+///
+/// Here is an example using all available builder methods to create a request.
+///
+/// ```rust
+/// let req = hltv::results()
+///     .from(2016, 2, 20)
+///     .to(2017, 12, 20)
+///     .map(Map::Inferno)
+///     .event(2683)
+///     .team(4608)
+///     .player(7998)
+///     .event_type(EventTypeFilter::Lan)
+///     .build();
+///
+/// // You can also specify multiple maps/teams/players instead
+/// let req = hltv::results()
+///     .from(2016, 2, 20)
+///     .to(2017, 12, 20)
+///     .maps(vec![Map::Inferno, Map::Cobblestone])
+///     .events(vec![2683, 3016])
+///     .teams(vec![4608, 5995])
+///     .players(vec![7998, 7167])
+///     .event_type(EventTypeFilter::Lan)
+///     .build();
+
+/// ```
 pub fn results() -> RequestBuilder<Vec<MatchResult>, ResultRB> {
     RequestBuilder {
         data: ResultRB::default(),
@@ -45,6 +74,8 @@ pub fn results() -> RequestBuilder<Vec<MatchResult>, ResultRB> {
     }
 }
 
+/// Here you can find all builder methods to specify which match results you want to
+/// fetch. 
 impl RequestBuilder<Vec<MatchResult>, ResultRB> {
     #[must_use]
     pub fn stars(mut self, stars: u32) -> Self {
@@ -70,12 +101,26 @@ impl RequestBuilder<Vec<MatchResult>, ResultRB> {
         self.data.to = format!("{}-{}-{}", year, month, day);
         self
     }
+    /// Only select results with the given event ID.
+    #[must_use]
+    pub fn event(mut self, event_id: u32) -> Self {
+        self.data.events = vec![event_ids];
+        self
+    }
+
     /// Only select results with the given event IDs.
     #[must_use]
     pub fn events(mut self, event_ids: Vec<u32>) -> Self {
         self.data.events = event_ids;
         self
     }
+    /// Only select results where the given player ID participated.
+    #[must_use]
+    pub fn player(mut self, player_id: u32) -> Self {
+        self.data.players = vec![player_id];
+        self
+    }
+
     /// Only select results where the given player IDs participated.
     #[must_use]
     pub fn players(mut self, player_ids: Vec<u32>) -> Self {

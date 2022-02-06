@@ -26,6 +26,7 @@ impl<T: ConvertInstance, V: Into<String>> RequestBuilder<T, V> {
     }
 }
 
+/// An event/match filter for building Requests.
 #[derive(Default)]
 pub enum EventTypeFilter {
     #[default]

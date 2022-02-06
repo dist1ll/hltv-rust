@@ -1,39 +1,41 @@
 # HLTV client
 
+[Documentation](https://docs.rs/hltv/latest/hltv/) | [Crates.io](https://crates.io/crates/hltv) | [Repository](https://github.com/dist1ll/hltv-rust)
+
 **A crate for fetching and parsing esports data from [HLTV.org](https://www.hltv.org).**
 
+
 This crate allows you to fetch and parse upcoming matches, results,
-event information, player performance and other data. 
-The http requests are done with [`attohttpc`](https://crates.io/crates/attohttpc)
-and the HTML responses are parsed with [`tl`](https://crates.io/crates/tl). 
+event information, player performance. This crate uses async calls via [`reqwest`]
+and parses the HTML document with [`tl`].
 
-A collection of detailed examples and explanations can be found in
-[the official docs](https://www.docs.rs/hltv).
+Currently, the following API calls are supported:
 
-## Usage
+- [`crate::upcoming`]
+- [`crate::results`]
 
-The builders in `hltv` allow you to build a generic `Request` 
-object with a `fetch` method.
+## Examples
+
+The builders in `hltv` allow you to build a generic [`Request`] object with a [`fetch`][`Request::fetch`] method.
 
 ```rust
-let q = hltv::results()
-              .stars(1)
-              .date(d1, d2)
-              .event_type(EventType::LAN)
-              .build()
+#[tokio::test]
+async fn results() -> Result<(), Box<dyn Error>> {
+    let req = hltv::results()
+        .map(Map::Inferno)
+        .team(4608) // Team Na'Vi
+        .year(2016) 
+        .event_type(EventTypeFilter::Lan)
+        .build();
 
-let result = q.fetch() // type: Result<Vec<Match>, hltv::Error>
+    let matches = req.fetch().await?; // <-- this has type Vec<MatchResult>
+    Ok(())
+}
 ```
-
 ## Getting more detailed information
 
-This API mimics the way you discover information on HLTV. Summary pages 
-(like [HLTV Matches](https://www.hltv.org/matches))
+This API mimics the way you discover information on HLTV. Summary pages (like [HLTV Matches](https://www.hltv.org/matches))
 contains less information in the HTML document than the detailed match-specific page.
-
-```rust
-/// Example
-```
 
 ## License
 

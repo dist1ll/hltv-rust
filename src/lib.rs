@@ -1,31 +1,42 @@
 /*!
+
+[Documentation](https://docs.rs/hltv/latest/hltv/) | [Crates.io](https://crates.io/crates/hltv) | [Repository](https://github.com/dist1ll/hltv-rust)
+
 **A crate for fetching and parsing esports data from [HLTV.org](https://www.hltv.org).**
 
+
 This crate allows you to fetch and parse upcoming matches, results,
-event information, player performance. This crate uses blocking calls via [`attohttpc`]
+event information, player performance. This crate uses async calls via [`reqwest`]
 and parses the HTML document with [`tl`].
+
+Currently, the following API calls are supported:
+
+- [`crate::upcoming`]
+- [`crate::results`]
 
 ## Examples
 
 The builders in `hltv` allow you to build a generic [`Request`] object with a [`fetch`][`Request::fetch`] method.
+
 ```rust
-let q = hltv::results()
-              .stars(1)
-              .date(d1, d2)
-              .event_type(EventType::LAN)
-              .build()
+#[tokio::test]
+async fn results() -> Result<(), Box<dyn Error>> {
+    let req = hltv::results()
+        .map(Map::Inferno)
+        .team(4608) // Team Na'Vi
+        .year(2016) 
+        .event_type(EventTypeFilter::Lan)
+        .build();
 
-let result = q.fetch() // type: Result<Vec<Match>, hltv::Error>
+    let matches = req.fetch().await?; // <-- this has type Vec<MatchResult>
+    Ok(())
+}
 ```
-
 ## Getting more detailed information
 
 This API mimics the way you discover information on HLTV. Summary pages (like [HLTV Matches](https://www.hltv.org/matches))
 contains less information in the HTML document than the detailed match-specific page.
 
-```rust
-/// Example
-```
 */
 #![allow(dead_code)]
 #![feature(derive_default_enum)]
@@ -39,6 +50,7 @@ mod tl_extensions;
 
 // Export builder methods
 mod request;
+pub use request::RequestBuilder;
 pub use request::upcoming::upcoming;
 pub use request::results::results;
 pub use request::EventTypeFilter;

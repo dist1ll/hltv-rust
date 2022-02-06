@@ -1,5 +1,5 @@
 /*!
-Methods to convert HTML to hltv data types.
+Methods to convert HTML to HLTV data types.
 
 This module contains all implemenations for converting HTML documents (type [`tl::VDom`])
 to the types contained in the `data` module. Correct conversion is dependent on the HTML

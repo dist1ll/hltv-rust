@@ -20,9 +20,11 @@ async fn upcoming_matches() -> Result<(), Box<dyn Error>> {
 #[tokio::test]
 async fn results() -> Result<(), Box<dyn Error>> {
     let req = hltv::results()
+        .from(2016, 2, 20)
+        .to(2017, 5, 20)
         .map(Map::Inferno)
         .team(4608)
-        .year(2016)
+        .player(7998)
         .event_type(EventTypeFilter::Lan)
         .build();
     println!("{:?}", req);
