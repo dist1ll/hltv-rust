@@ -42,17 +42,6 @@ mod request;
 pub use request::upcoming::upcoming;
 pub use request::EventTypeFilter;
 
-/// Errors that happen during request, parse or conversion of data.
-#[derive(Debug)]
-pub enum Error {
-    /// Any non-200 status code.
-    HTTPError,
-    /// HTML document is invalid. Refer to `tl::parse`.
-    ParseError,
-    /// Parsed document can't be converted into target type.
-    ConversionError(&'static str),
-}
-
 /// Implements a conversion from a DOM object to a collection of its own type.
 pub trait ConvertCollection
 where
@@ -99,7 +88,35 @@ where
     /// Returns an error if the resource is not reachable.
     /// If you want to create a custom data structure that can be fetched
     /// and read from HLTV, refer to the [`converter`] module.
-    pub fn fetch(&self) -> Result<T, crate::Error> {
-        Err(crate::Error::HTTPError)
+    pub async fn fetch(&self) -> Result<Vec<T>, Box<dyn std::error::Error>> {
+        let html = reqwest::get(self.url.clone()).await?.text().await?;
+        let vdom = tl::parse(&html, tl::ParserOptions::default())?;
+        let x = T::convert(&vdom)?;
+        Ok(x)
     }
 }
+
+/// Errors that happen during request, parse or conversion of data.
+#[derive(Debug)]
+pub enum Error {
+    /// Any non-200 status code.
+    HTTPError,
+    /// HTML document is invalid. Refer to `tl::parse`.
+    ParseError,
+    /// Parsed document can't be converted into target type.
+    ConversionError(&'static str),
+}
+
+impl std::error::Error for Error {}
+
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Error::HTTPError => write!(f, "error with http client or remote server"),
+            Error::ParseError => write!(f, "error parsing received data"),
+            Error::ConversionError(_) => write!(f, "error converting data into correct type"),
+        } 
+    }
+}
+
+

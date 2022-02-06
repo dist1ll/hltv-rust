@@ -18,3 +18,6 @@ doctest = false
 reqwest = "0.11.9"
 chrono = "0.4.19"
 tl = "0.6.0"
+
+[dev-dependencies]
+tokio = { version = "1.16.1", features = ["macros"] }
