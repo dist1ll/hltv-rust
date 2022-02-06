@@ -2,10 +2,10 @@ use tl::queryselector::QuerySelectorIterator;
 
 use crate::data::*;
 use crate::tl_extensions::*;
-use crate::ConvertCollection;
+use crate::ConvertInstance;
 use crate::{Error, Error::ConversionError};
 
-impl ConvertCollection for MatchResult {
+impl ConvertInstance for Vec<MatchResult> {
     fn convert<'a>(d: &'a tl::VDom<'a>) -> Result<Vec<MatchResult>, Error> {
         let mut result = Vec::<MatchResult>::new();
         let match_containers = get_roots(d);
@@ -103,7 +103,7 @@ mod tests {
     pub fn results() {
         let input = include_str!("../testdata/results.html");
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
-        let result = MatchResult::convert(&dom).unwrap();
+        let result: Vec<MatchResult> = Vec::convert(&dom).unwrap();
         assert_eq!(result.len(), 2);
 
         assert_eq!(

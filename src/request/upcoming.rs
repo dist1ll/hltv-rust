@@ -21,14 +21,14 @@ impl From<UpcomingRB> for String {
     }
 }
 /// Creates a request builder for upcoming matches.
-pub fn upcoming() -> RequestBuilder<UpcomingMatch, UpcomingRB> {
+pub fn upcoming() -> RequestBuilder<Vec<UpcomingMatch>, UpcomingRB> {
     RequestBuilder {
         data: UpcomingRB::default(),
         _p: PhantomData,
     }
 }
 
-impl RequestBuilder<UpcomingMatch, UpcomingRB> {
+impl RequestBuilder<Vec<UpcomingMatch>, UpcomingRB> {
     #[must_use]
     pub fn top_tier(mut self) -> Self {
         self.data.top_tier = true;

@@ -4,10 +4,10 @@ use chrono::Utc;
 
 use crate::data::*;
 use crate::tl_extensions::*;
-use crate::ConvertCollection;
+use crate::ConvertInstance;
 use crate::{Error, Error::ConversionError};
 
-impl ConvertCollection for UpcomingMatch {
+impl ConvertInstance for Vec<UpcomingMatch> {
     fn convert<'a>(d: &'a tl::VDom<'a>) -> Result<Vec<UpcomingMatch>, Error> {
         let mut result = Vec::<UpcomingMatch>::new();
         let match_containers = d.query_selector("div.upcomingMatch").unwrap();
@@ -94,7 +94,7 @@ mod tests {
     pub fn matches() {
         let input = include_str!("../testdata/matches.html");
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
-        let result = UpcomingMatch::convert(&dom).unwrap();
+        let result: Vec<UpcomingMatch> = Vec::convert(&dom).unwrap();
         assert_eq!(result.len(), 2);
         // test existance of teams
         assert!(result[1].team1.is_none() && result[1].team2.is_none());

@@ -53,13 +53,13 @@ where
 }
 
 /// Implements a conversion from a DOM object to a single instance of its own type.
-pub trait ConvertInstance<'a>
+pub trait ConvertInstance
 where
     Self: Sized,
 {
     /// Converts a given VDOM into a instance of its own type. If the DOM contains
     /// multiple instances, the first one is chosen.
-    fn convert(d: tl::VDom<'a>) -> Result<Self, crate::Error>;
+    fn convert<'a>(d: &'a tl::VDom<'a>) -> Result<Self, crate::Error>;
 }
 
 /// A reusable request object, that fetches, parses and converts HLTV data
@@ -67,7 +67,7 @@ where
 #[derive(Debug)]
 pub struct Request<T>
 where
-    T: ConvertCollection,
+    T: ConvertInstance,
 {
     url: String,
     _m: PhantomData<T>,
@@ -75,7 +75,7 @@ where
 
 impl<T> Request<T>
 where
-    T: ConvertCollection,
+    T: ConvertInstance,
 {
     /// Creates a new request object with given url and conversion type.
     pub fn new(url: String) -> Request<T> {
@@ -88,7 +88,7 @@ where
     /// Returns an error if the resource is not reachable.
     /// If you want to create a custom data structure that can be fetched
     /// and read from HLTV, refer to the [`converter`] module.
-    pub async fn fetch(&self) -> Result<Vec<T>, Box<dyn std::error::Error>> {
+    pub async fn fetch(&self) -> Result<T, Box<dyn std::error::Error>> {
         let html = reqwest::get(self.url.clone()).await?.text().await?;
         let vdom = tl::parse(&html, tl::ParserOptions::default())?;
         let x = T::convert(&vdom)?;
