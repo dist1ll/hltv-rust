@@ -6,17 +6,17 @@
 
 
 This crate allows you to fetch and parse upcoming matches, results,
-event information, player performance. This crate uses async calls via [`reqwest`]
-and parses the HTML document with [`tl`].
+event information, player performance. This crate uses async calls via `reqwest`
+and parses the HTML document with `tl`.
 
 Currently, the following API calls are supported:
 
-- [`crate::upcoming`]
-- [`crate::results`]
+- `crate::upcoming`
+- `crate::results`
 
 ## Examples
 
-The builders in `hltv` allow you to build a generic [`Request`] object with a [`fetch`][`Request::fetch`] method.
+The builders in `hltv` allow you to build a generic `Request` object with a `Request::fetch` method.
 
 ```rust
 #[tokio::test]
