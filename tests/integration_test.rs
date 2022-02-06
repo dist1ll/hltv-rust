@@ -1,6 +1,5 @@
 use std::error::Error;
-
-use hltv::EventTypeFilter;
+use hltv::request::EventTypeFilter;
 use hltv::data::Map;
 
 /// Testing if upcoming matches are correctly parsed.

@@ -1,6 +1,7 @@
 use crate::data::Map;
 use crate::request::*;
 
+/// Request builder for match results.
 #[derive(Default)]
 pub struct ResultRB {
     stars: u32,
@@ -13,32 +14,7 @@ pub struct ResultRB {
     match_filter: EventTypeFilter,
 }
 
-impl From<ResultRB> for String {
-    fn from(d: ResultRB) -> Self {
-        let mut result = String::from("results?");
-        result += &format!("stars={}", d.stars);
-        result += &format!("&matchType={}", d.match_filter);
-        if !d.from.is_empty() && !d.to.is_empty() {
-            result += &format!("&startDate={}&endDate={}", d.from, d.to);
-        } 
-        for &ev in d.events.iter() {
-            result += &format!("&event={}", ev);
-        }
-        for &pl in d.players.iter() {
-            result += &format!("&player={}", pl);
-        }
-        for &team in d.teams.iter() {
-            result += &format!("&team={}", team);
-        }
-        for map in d.maps.iter() {
-            result += &format!("&map={}", map);
-        }
-        result
-    }
-}
-
-/// Use this to build requests for match results. To find out which builder methods
-/// exist, refer to the docs of [`RequestBuilder`].
+/// Use this to build requests for match results.
 ///
 /// # Example
 ///
@@ -67,94 +43,121 @@ impl From<ResultRB> for String {
 ///     .build();
 
 /// ```
-pub fn results() -> RequestBuilder<Vec<MatchResult>, ResultRB> {
-    RequestBuilder {
-        data: ResultRB::default(),
-        _p: PhantomData,
-    }
+pub fn results() -> ResultRB {
+    ResultRB::default()
 }
 
 /// Here you can find all builder methods to specify which match results you want to
 /// fetch. 
-impl RequestBuilder<Vec<MatchResult>, ResultRB> {
+impl ResultRB {
     #[must_use]
     pub fn stars(mut self, stars: u32) -> Self {
-        self.data.stars = stars;
+        self.stars = stars;
         self
     }
     /// Get results from a particular year.
     #[must_use]
     pub fn year(mut self, year: u32) -> Self {
-        self.data.from = format!("{}-01-01", year);
-        self.data.to = format!("{}-12-31", year);
+        self.from = format!("{}-01-01", year);
+        self.to = format!("{}-12-31", year);
         self
     }
-    /// Specify start date of results. Sould be used with .to()
+    /// Specify start self.te of results. Sould be used with .to()
     #[must_use]
     pub fn from(mut self, year: u32, month: u32, day: u32) -> Self {
-        self.data.from = format!("{}-{}-{}", year, month, day);
+        self.from = format!("{}-{}-{}", year, month, day);
         self
     }
-    /// Specify end date of results. Needs to be used with .to()
+    /// Specify end self.te of results. Needs to be used with .to()
     #[must_use]
-    pub fn to(mut self, year: u32, month: u32, day: u32) -> Self {
-        self.data.to = format!("{}-{}-{}", year, month, day);
+    pub fn to(mut self, year: u32, month: u32, day: u32) -> Self { 
+        self.to = format!("{}-{}-{}", year, month, day);
         self
     }
     /// Only select results with the given event ID.
     #[must_use]
     pub fn event(mut self, event_id: u32) -> Self {
-        self.data.events = vec![event_id];
+        self.events = vec![event_id];
         self
     }
 
     /// Only select results with the given event IDs.
     #[must_use]
     pub fn events(mut self, event_ids: Vec<u32>) -> Self {
-        self.data.events = event_ids;
+        self.events = event_ids;
         self
     }
     /// Only select results where the given player ID participated.
     #[must_use]
     pub fn player(mut self, player_id: u32) -> Self {
-        self.data.players = vec![player_id];
+        self.players = vec![player_id];
         self
     }
 
     /// Only select results where the given player IDs participated.
     #[must_use]
     pub fn players(mut self, player_ids: Vec<u32>) -> Self {
-        self.data.players = player_ids;
+        self.players = player_ids;
         self
     }
     /// Only select results where the given team ID participated.
     #[must_use]
     pub fn team(mut self, team_id: u32) -> Self {
-        self.data.teams = vec![team_id];
+        self.teams = vec![team_id];
         self
     }
     /// Only select results where the given team IDs participated.
     #[must_use]
     pub fn teams(mut self, team_ids: Vec<u32>) -> Self {
-        self.data.teams = team_ids;
+        self.teams = team_ids;
         self
     }
 
     /// Only select results where the given map was played.
     #[must_use]
     pub fn map(mut self, map: Map) -> Self {
-        self.data.maps = vec![map];
+        self.maps = vec![map];
         self
     }
     /// Only select results where the given maps were played.
     #[must_use]
     pub fn maps(mut self, maps: Vec<Map>) -> Self {
-        self.data.maps = maps;
+        self.maps = maps;
         self
     }
     #[must_use]
     pub fn event_type(mut self, event_filter: EventTypeFilter) -> Self {
-        self.data.match_filter = event_filter;
+        self.match_filter = event_filter;
         self
+    }
+    #[must_use]
+    pub fn build(self) -> Request<Vec<MatchResult>> {
+        let query = {
+            let mut result = String::from("results?");
+            result += &format!("stars={}", self.stars);
+            result += &format!("&matchType={}", self.match_filter);
+            if !self.from.is_empty() && !self.to.is_empty() {
+                result += &format!("&startDate={}&endDate={}", self.from, self.to);
+            } 
+            for &ev in self.events.iter() {
+                result += &format!("&event={}", ev);
+            }
+            for &pl in self.players.iter() {
+                result += &format!("&player={}", pl);
+            }
+            for &team in self.teams.iter() {
+                result += &format!("&team={}", team);
+            }
+            for map in self.maps.iter() {
+                result += &format!("&map={}", map);
+            }
+            result
+        };
+
+        Request {
+            url: format!("{}{}", HLTV_ROOT, query),
+            _m: PhantomData,
+        }
+
     }
 }
