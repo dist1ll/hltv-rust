@@ -104,7 +104,7 @@ impl RequestBuilder<Vec<MatchResult>, ResultRB> {
     /// Only select results with the given event ID.
     #[must_use]
     pub fn event(mut self, event_id: u32) -> Self {
-        self.data.events = vec![event_ids];
+        self.data.events = vec![event_id];
         self
     }
 
