@@ -1,23 +1,27 @@
 use std::error::Error;
+use std::time::Duration;
 use hltv::request::EventTypeFilter;
 use hltv::data::Map;
+
+async fn wait() {
+    tokio::time::sleep(Duration::from_millis(1500)).await;
+}
 
 /// Testing if upcoming matches are correctly parsed.
 #[tokio::test]
 async fn upcoming_matches() -> Result<(), Box<dyn Error>> {
+    wait().await;
     let req = hltv::upcoming()
-        .events(vec![6343, 6335])
-        .event_type(EventTypeFilter::Online)
+        .top_tier()
         .build();
-    println!("{:?}", req);
-    let matches = req.fetch().await?;
-    println!("{:?}", matches);
+    req.fetch().await?;
     Ok(())
 }
 
 /// Testing if upcoming matches are correctly parsed.
 #[tokio::test]
 async fn results() -> Result<(), Box<dyn Error>> {
+    wait().await;
     let req = hltv::results()
         .from(2016, 2, 20)
         .to(2017, 5, 20)
@@ -26,8 +30,6 @@ async fn results() -> Result<(), Box<dyn Error>> {
         .player(7998)
         .event_type(EventTypeFilter::Lan)
         .build();
-    println!("{:?}", req);
-    let matches = req.fetch().await?;
-    println!("{:?}", matches);
+    req.fetch().await?;
     Ok(())
 }
