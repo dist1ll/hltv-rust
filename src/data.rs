@@ -157,3 +157,43 @@ pub struct Stats {
     /// HLTV 2.0 rating.
     pub rating: f32,
 }
+
+
+/// All CSGO maps that are listed on HLTV
+#[derive(Debug, Default)]
+pub enum Map {
+    #[default]
+    Unknown,
+    Cache,
+    Season,
+    Dust2,
+    Mirage,
+    Inferno,
+    Nuke,
+    Train,
+    Cobblestone,
+    Overpass,
+    Tuscan,
+    Vertigo,
+    Ancient,
+}
+
+impl std::fmt::Display for Map {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Map::Unknown => write!(f, "n/a"),
+            Map::Cache => write!(f, "de_cache"),
+            Map::Season => write!(f, "de_season"),
+            Map::Dust2 => write!(f, "de_dust2"),
+            Map::Mirage => write!(f, "de_mirage"),
+            Map::Inferno => write!(f, "de_inferno"),
+            Map::Nuke => write!(f, "de_nuke"),
+            Map::Train => write!(f, "de_train"),
+            Map::Cobblestone => write!(f, "de_cobblestone"),
+            Map::Overpass => write!(f, "de_overpass"),
+            Map::Tuscan => write!(f, "de_tuscan"),
+            Map::Vertigo => write!(f, "de_vertigo"),
+            Map::Ancient => write!(f, "de_ancient"),
+        }
+    }
+}

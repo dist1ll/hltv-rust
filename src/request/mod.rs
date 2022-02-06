@@ -7,6 +7,7 @@ use crate::Request;
 const HLTV_ROOT: &str = "https://www.hltv.org/";
 
 pub mod upcoming;
+pub mod results;
 
 /// Generic request builder. After using the builder methods, call .build() to
 /// generate a Request<T> object.

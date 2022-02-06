@@ -40,6 +40,7 @@ mod tl_extensions;
 // Export builder methods
 mod request;
 pub use request::upcoming::upcoming;
+pub use request::results::results;
 pub use request::EventTypeFilter;
 
 /// Implements a conversion from a DOM object to a collection of its own type.
