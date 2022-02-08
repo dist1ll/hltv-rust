@@ -5,6 +5,9 @@ completeness. If you think an edge case is not correctly parsed, feel free to cr
 and attach a sample of html that is not correctly recognized.
 */
 
+use chrono::DateTime;
+use chrono::NaiveDateTime;
+use chrono::Utc;
 use tl::NodeHandle;
 
 use crate::data::*;
@@ -65,6 +68,21 @@ fn get_event(h: RichNode) -> Result<Event, Error> {
             .ok_or(ConversionError("no title attribute in event"))?,
     })
 }
+
+/// Return match starting date. Shouldn't change over time.
+pub fn get_date(h: RichNode) -> Result<DateTime<Utc>, Error> {
+    let timestamp: i64 = h
+        .find("timeAndEvent")
+        .find("time")
+        .get_attr("data-unix")?
+        .ok_or(ConversionError("no data-unix attribute"))?;
+
+    Ok(DateTime::<Utc>::from_utc(
+        NaiveDateTime::from_timestamp(timestamp / 1000, 0),
+        Utc,
+    ))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -74,7 +92,7 @@ mod tests {
         let input = include_str!("../testdata/matchPages/finished_bo3.html");
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
         let root = get_root(&dom).unwrap().to_rich(&dom);
-        println!("{:?}", get_event(root));
+        println!("{:?}", get_date(root));
     }
     /// Tests if a finished bo3 match is correctly parsed.
     #[test]
