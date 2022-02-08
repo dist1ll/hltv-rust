@@ -87,6 +87,20 @@ impl<'a> RichNode<'a> {
             .collect()
     }
 
+    /// Gets the index-th child, that is a tag.
+    pub fn child(self, index: u32) -> Option<RichNode<'a>> {
+        let mut i = 0;
+        for x in self.get()?.children()?.top().iter() {
+            if x.get(self.d.parser()).unwrap().as_tag().is_some() {
+                if index == i {
+                    return Some(x.to_rich(self.d));
+                }
+                i += 1;
+            }
+        }
+        None
+    }
+
     pub fn get_attr_str(&self, attr: &str) -> Option<String> {
         let tag = self.n.and_then(|n| n.get(self.d.parser()))?.as_tag()?;
 
@@ -246,5 +260,16 @@ mod tests {
         assert!(n.has_class("first").unwrap());
         assert!(n.has_class("second").unwrap());
         assert!(!n.has_class("third").unwrap());
+    }
+
+    #[test]
+    pub fn child_index() {
+        let input = include_str!("./testdata/tl/ext1.html");
+        let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
+        let root = dom.get_element_by_id("root-child").unwrap().to_rich(&dom);
+
+        assert!(root.child(0).unwrap().get_attr_str("href").is_some());
+        assert!(root.child(0).unwrap().get_attr_str("class").is_none());
+        assert!(root.child(1).unwrap().get_attr_str("class").is_some());
     }
 }
