@@ -41,6 +41,30 @@ fn get_team(root: RichNode, class: &str) -> Option<Team> {
     })
 }
 
+/// Returns event information, like event ID or name. Requires match-page root.
+fn get_event(h: RichNode) -> Result<Event, Error> {
+    let event = h
+        .find("timeAndEvent")
+        .find("event")
+        .child(0)
+        .ok_or(ConversionError("no event data found"))?;
+
+    let id: u32 = event
+        .get_attr_str("href")
+        .ok_or(ConversionError("event element has no href link"))?
+        .split('/')
+        .nth(2)
+        .ok_or(ConversionError("event link has incorrect format"))?
+        .parse()
+        .map_err(|_| ConversionError("cant parse event ID"))?;
+
+    Ok(Event {
+        id,
+        name: event
+            .get_attr_str("title")
+            .ok_or(ConversionError("no title attribute in event"))?,
+    })
+}
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -50,7 +74,7 @@ mod tests {
         let input = include_str!("../testdata/matchPages/finished_bo3.html");
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
         let root = get_root(&dom).unwrap().to_rich(&dom);
-        println!("{:?}", get_team(root, "team1-gradient"));
+        println!("{:?}", get_event(root));
     }
     /// Tests if a finished bo3 match is correctly parsed.
     #[test]

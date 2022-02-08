@@ -127,6 +127,9 @@ pub struct MatchPage {
     pub team1: Option<Team>,
     pub team2: Option<Team>,
     pub event: Event,
+    /// Time when a match is supposed to start. This is different from the timestamp
+    /// found on [`MatchResult`] (which is the time the match result was published).
+    pub date: DateTime<Utc>,
     pub format: MatchFormat,
     pub result: Option<MatchResult>,
 }
