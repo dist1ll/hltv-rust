@@ -28,14 +28,15 @@ async fn results() -> Result<(), Box<dyn Error>> {
         .event_type(EventTypeFilter::Lan)
         .build();
 
-    let matches = req.fetch().await?; // <-- this has type Vec<MatchResult>
+    let matches = req.fetch().await?; // Vec<MatchResult>
     Ok(())
 }
 ```
 ## Getting more detailed information
 
-This API mimics the way you discover information on HLTV. Summary pages (like [HLTV Matches](https://www.hltv.org/matches))
-contains less information in the HTML document than the detailed match-specific page.
+This API mimics the way you discover information on HLTV. Summary pages 
+like [HLTV Matches](https://www.hltv.org/matches) contain less information 
+in the HTML document than the detailed match-specific page.
 
 ## License
 

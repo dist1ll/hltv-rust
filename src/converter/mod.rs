@@ -12,4 +12,5 @@ GitHub repository or submit a pull request.
 
 pub mod player;
 pub mod matches;
+pub mod match_page;
 pub mod results;

@@ -120,13 +120,23 @@ pub struct Score {
 
 /// Contains detailed information about a match. Corresponds to data found on [HLTV's
 /// match page](https://www.hltv.org/matches/2239492/nip-vs-virtuspro-sltv-starseries-v-finals).
+#[derive(Debug)]
 pub struct MatchPage {
     pub id: u32,
+    pub status: MatchStatus,
     pub team1: Option<Team>,
     pub team2: Option<Team>,
     pub event: Event,
     pub format: MatchFormat,
     pub result: Option<MatchResult>,
+}
+
+/// Current status of a match.
+#[derive(Debug)]
+pub enum MatchStatus {
+    Upcoming,
+    Finished,
+    Live,
 }
 
 /// Refers to either the first or second team in a match, according to HLTV order.
@@ -138,6 +148,7 @@ pub enum WhichTeam {
 }
 
 /// Represents the result of a single map. Examples are: `16-14`, `10-16`, `19-17`
+#[derive(Debug)]
 pub struct MapScore {
     pub map: String,
     pub team1_rounds: u32,
@@ -145,6 +156,7 @@ pub struct MapScore {
 }
 
 /// Collection of performance metrics of a player.
+#[derive(Debug)]
 pub struct Stats {
     /// Total kills.
     pub kills: u32,
