@@ -131,7 +131,14 @@ pub struct MatchPage {
     /// found on [`MatchResult`] (which is the time the match result was published).
     pub date: DateTime<Utc>,
     pub format: MatchFormat,
-    pub result: Option<MatchResult>,
+    /// A match score. In case of bo1, either `1-0` or `0-1`. For bo3 it's `2-0`, `2-1`
+    /// and so on.
+    pub score: Option<MatchScore>,
+    /// A collection of map-specific scores. Up to 7 maps can be played per map. Empty
+    /// if the game hasn't started yet. Contains partial results if maps have been played
+    /// but the match hasn't fully concluded yet (which can be the case for bo3+).
+    pub maps: Vec<MapScore>,
+    pub stats: Option<[Performance; 10]>,
 }
 
 /// Current status of a match.
@@ -143,20 +150,33 @@ pub enum MatchStatus {
 }
 
 /// Refers to either the first or second team in a match, according to HLTV order.
-#[derive(Debug, PartialEq)]
+#[derive(Default, Debug, PartialEq)]
 pub enum WhichTeam {
+    #[default]
+    None,
     First,
     Second,
-    None,
+}
+
+/// A match score refers to the number of won maps of both team 1 and team 2.
+/// Examples are `1-0`, `2-1`, `1-3`, etc.
+#[derive(Debug)]
+pub struct MatchScore {
+    pub team1: (Team, u32),
+    pub team2: (Team, u32),
 }
 
 /// Represents the result of a single map. Examples are: `16-14`, `10-16`, `19-17`
 #[derive(Debug)]
 pub struct MapScore {
-    pub map: String,
+    pub map: Map,
     pub team1_rounds: u32,
     pub team2_rounds: u32,
 }
+
+/// A tuple of a specific players map performance.
+#[derive(Debug)]
+pub struct Performance(Player, Stats);
 
 /// Collection of performance metrics of a player.
 #[derive(Debug)]
