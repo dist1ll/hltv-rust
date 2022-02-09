@@ -83,6 +83,19 @@ pub fn get_date(h: RichNode) -> Result<DateTime<Utc>, Error> {
     ))
 }
 
+pub fn get_score(h: RichNode) -> Option<MatchScore> {
+    let team1: u32 = h.find("team1-gradient").child(1)?.inner_parse().ok()??;
+    let team2: u32 = h.find("team2-gradient").child(1)?.inner_parse().ok()??;
+    // if one of the scores is high enough, it has to be a bo1
+    if team1 > 8 && team1 > team2 {
+        return Some(MatchScore{team1: 1, team2: 0});
+    }
+    if team2 > 8 && team2 > team1 {
+        return Some(MatchScore{team1: 0, team2: 1});
+    }
+    Some(MatchScore { team1, team2 })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -92,7 +105,7 @@ mod tests {
         let input = include_str!("../testdata/matchPages/finished_bo3.html");
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
         let root = get_root(&dom).unwrap().to_rich(&dom);
-        println!("{:?}", get_date(root));
+        println!("{:?}", get_score(root).unwrap());
     }
     /// Tests if a finished bo3 match is correctly parsed.
     #[test]

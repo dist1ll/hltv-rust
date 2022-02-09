@@ -126,10 +126,12 @@ pub struct MatchPage {
     pub status: MatchStatus,
     pub team1: Option<Team>,
     pub team2: Option<Team>,
+    /// Event at which this match is played.
     pub event: Event,
     /// Time when a match is supposed to start. This is different from the timestamp
     /// found on [`MatchResult`] (which is the time the match result was published).
     pub date: DateTime<Utc>,
+    /// Format of the match. The format determines how many maps a team needs to win a match.
     pub format: MatchFormat,
     /// A match score. In case of bo1, either `1-0` or `0-1`. For bo3 it's `2-0`, `2-1`
     /// and so on.
@@ -138,6 +140,7 @@ pub struct MatchPage {
     /// if the game hasn't started yet. Contains partial results if maps have been played
     /// but the match hasn't fully concluded yet (which can be the case for bo3+).
     pub maps: Vec<MapScore>,
+    /// Performance of players over all maps.
     pub stats: Option<[Performance; 10]>,
 }
 
@@ -162,16 +165,18 @@ pub enum WhichTeam {
 /// Examples are `1-0`, `2-1`, `1-3`, etc.
 #[derive(Debug)]
 pub struct MatchScore {
-    pub team1: (Team, u32),
-    pub team2: (Team, u32),
+    pub team1: u32,
+    pub team2: u32,
 }
 
 /// Represents the result of a single map. Examples are: `16-14`, `10-16`, `19-17`
 #[derive(Debug)]
 pub struct MapScore {
     pub map: Map,
-    pub team1_rounds: u32,
-    pub team2_rounds: u32,
+    /// Number of rounds won by team 1.
+    pub team1: u32,
+    /// Number of rounds won by team 2.
+    pub team2: u32,
 }
 
 /// A tuple of a specific players map performance.
