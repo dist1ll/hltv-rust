@@ -96,10 +96,26 @@ pub fn get_score(h: RichNode) -> Option<MatchScore> {
     Some(MatchScore { team1, team2 })
 }
 
-pub fn get_mapscores(h: RichNode) -> Vec<MapScore> {
+pub fn get_mapscores(h: RichNode) -> Result<Vec<MapScore>, Error> {
     let mut result = Vec::<MapScore>::new();
-    
-    result
+    for m in h.find("maps").find_all("mapholder") {
+        let map = m.find("mapname").inner_text();
+        let team1 = m.find("results-left").find("results-team-score").inner_text();
+        let team2 = m.find("results-right").find("results-team-score").inner_text();
+        if team1.is_none() || team2.is_none() || map.is_none() {
+            continue;
+        }
+        let map = map.unwrap();
+        if map.eq("TBA") || map.eq("-") {
+            continue;
+        }
+        result.push(MapScore{
+            map: map.into(),
+            team1: team1.unwrap().parse().map_err(|_| ConversionError("can't convert 1st team's map score"))?,
+            team2: team2.unwrap().parse().map_err(|_| ConversionError("cant convert 2nd team's map score"))?,
+        })
+    }
+    Ok(result)
 }
 
 #[cfg(test)]
@@ -111,7 +127,7 @@ mod tests {
         let input = include_str!("../testdata/matchPages/finished_bo3.html");
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
         let root = get_root(&dom).unwrap().to_rich(&dom);
-        println!("{:?}", get_score(root).unwrap());
+        println!("{:?}", get_mapscores(root));
     }
     /// Tests if a finished bo3 match is correctly parsed.
     #[test]

@@ -218,6 +218,27 @@ pub enum Map {
     Ancient,
 }
 
+impl From<String> for Map {
+    fn from(s: String) -> Self {
+        use Map::*;
+        match s.as_ref() {
+            "Cache" => Cache,
+            "Season" => Season,
+            "Dust2" => Dust2,
+            "Mirage" => Mirage,
+            "Inferno" => Inferno,
+            "Nuke" => Nuke,
+            "Train" => Train,
+            "Cobblestone" => Cobblestone,
+            "Overpass" => Overpass,
+            "Tuscan" => Tuscan,
+            "Vertigo" => Vertigo,
+            "Ancient" => Ancient,
+            &_ => Unknown,
+        }
+    }
+}
+
 impl std::fmt::Display for Map {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
