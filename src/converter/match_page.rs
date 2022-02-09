@@ -96,6 +96,12 @@ pub fn get_score(h: RichNode) -> Option<MatchScore> {
     Some(MatchScore { team1, team2 })
 }
 
+pub fn get_mapscores(h: RichNode) -> Vec<MapScore> {
+    let mut result = Vec::<MapScore>::new();
+    
+    result
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
