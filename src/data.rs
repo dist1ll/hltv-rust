@@ -122,9 +122,13 @@ pub struct Score {
 /// match page](https://www.hltv.org/matches/2239492/nip-vs-virtuspro-sltv-starseries-v-finals).
 #[derive(Debug)]
 pub struct MatchPage {
+    /// ID of the match
     pub id: u32,
+    /// Status of the match. 
     pub status: MatchStatus,
+    /// First team, if known.
     pub team1: Option<Team>,
+    /// Second team, if known.
     pub team2: Option<Team>,
     /// Event at which this match is played.
     pub event: Event,

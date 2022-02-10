@@ -128,6 +128,15 @@ pub fn get_matchformat(h: RichNode) -> Result<MatchFormat, Error> {
     }
 }
 
+pub fn get_matchstatus(h: RichNode) -> Result<MatchStatus, Error> {
+    let t = h.find("countdown").inner_text().ok_or(ConversionError("can't find countdown or match status"))?;
+    match t.as_ref() {
+        "Match over" => Ok(MatchStatus::Finished),
+        "LIVE" => Ok(MatchStatus::Live),
+        _ => Ok(MatchStatus::Upcoming),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -137,7 +146,7 @@ mod tests {
         let input = include_str!("../testdata/matchPages/finished_bo3.html");
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
         let root = get_root(&dom).unwrap().to_rich(&dom);
-        println!("{:?}", get_matchformat(root));
+        println!("{:?}", get_matchstatus(root));
     }
     /// Tests if a finished bo3 match is correctly parsed.
     #[test]
