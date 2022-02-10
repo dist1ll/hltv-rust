@@ -118,6 +118,16 @@ pub fn get_mapscores(h: RichNode) -> Result<Vec<MapScore>, Error> {
     Ok(result)
 }
 
+pub fn get_matchformat(h: RichNode) -> Result<MatchFormat, Error> {
+    match h.find_all("mapholder").len() {
+        1 => Ok(MatchFormat::Bo1),
+        3 => Ok(MatchFormat::Bo3),
+        5 => Ok(MatchFormat::Bo5),
+        7 => Ok(MatchFormat::Bo7),
+        _ => Err(ConversionError("can't determine match format. weird number of maps."))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -127,7 +137,7 @@ mod tests {
         let input = include_str!("../testdata/matchPages/finished_bo3.html");
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
         let root = get_root(&dom).unwrap().to_rich(&dom);
-        println!("{:?}", get_mapscores(root));
+        println!("{:?}", get_matchformat(root));
     }
     /// Tests if a finished bo3 match is correctly parsed.
     #[test]
