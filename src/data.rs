@@ -23,7 +23,7 @@ pub enum MatchFormat {
 }
 
 /// Basic player information.
-#[derive(Default, Debug, PartialEq)]
+#[derive(Default, Debug, PartialEq, Clone)]
 pub struct Player {
     pub id: u32,
     pub nickname: String,
@@ -184,11 +184,11 @@ pub struct MapScore {
 }
 
 /// A tuple of a specific players map performance.
-#[derive(Debug)]
-pub struct Performance(Player, Stats);
+#[derive(Debug, Default, Clone)]
+pub struct Performance(pub Player, pub Stats);
 
 /// Collection of performance metrics of a player.
-#[derive(Debug)]
+#[derive(Debug, Default, Clone)]
 pub struct Stats {
     /// Total kills.
     pub kills: u32,

@@ -4,7 +4,6 @@ a match page can have many different conditions and edge cases. The crate gives 
 completeness. If you think an edge case is not correctly parsed, feel free to create an issue on github
 and attach a sample of html that is not correctly recognized.
 */
-
 use chrono::DateTime;
 use chrono::NaiveDateTime;
 use chrono::Utc;
@@ -137,6 +136,51 @@ pub fn get_matchstatus(h: RichNode) -> Result<MatchStatus, Error> {
     }
 }
 
+pub fn get_performance(h: RichNode) -> Option<[Performance;10]> {
+    let all = h.find("stats-content").find_all("totalstats");
+    if all.len() != 2 {
+        return None;
+    }
+    let mut result: [Performance; 10] = Default::default();
+    result[5..10].clone_from_slice(&get_performance_root(all[0])?);
+    result[..5].clone_from_slice(&get_performance_root(all[1])?);
+    Some(result)
+}
+
+/// Parse the match performance belonging to a specific team container totalstats table
+fn get_performance_root(h: RichNode) -> Option<[Performance;5]> {
+    let mut result: [Performance; 5] = Default::default();
+    for i in 0u32..5 {
+        let p = h.child(i + 1)?;
+        println!("index: \t{:?}", i);
+        result[i as usize] = get_performance_player(p)?;
+        println!("{:?}", result[i as usize]);
+    }
+    Some(result)
+}
+
+/// Get the performance of a specific player in a tr-class
+fn get_performance_player(h: RichNode) -> Option<Performance> {
+    // Player
+    let link = h.find("players").find("flagAlign").child(0)?.get_attr_str("href")?;
+    let p = Player {
+        id: link.split('/').nth(2)?.parse().ok()?,
+        nickname: h.find("statsPlayerName").inner_text()?,
+    };
+
+    // Stats
+    let kd = h.find("kd").inner_text()?;
+    let kast = h.find("adr").inner_text()?;
+    let s = Stats{
+        kills: kd.split('-').next()?.parse().ok()?,
+        deaths: kd.split('-').nth(1)?.parse().ok()?,
+        adr: h.find("adr").inner_text()?.parse().ok()?,
+        kast: kast.split('%').next()?.parse().ok()?,
+        rating: h.find("rating").inner_text()?.parse().ok()?,
+    };
+    Some(Performance(p, s))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -146,7 +190,7 @@ mod tests {
         let input = include_str!("../testdata/matchPages/finished_bo3.html");
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
         let root = get_root(&dom).unwrap().to_rich(&dom);
-        println!("{:?}", get_matchstatus(root));
+        println!("{:?}", get_performance(root));
     }
     /// Tests if a finished bo3 match is correctly parsed.
     #[test]
