@@ -87,10 +87,10 @@ pub fn get_score(h: RichNode) -> Option<MatchScore> {
     let team2: u32 = h.find("team2-gradient").child(1)?.inner_parse().ok()??;
     // if one of the scores is high enough, it has to be a bo1
     if team1 > 8 && team1 > team2 {
-        return Some(MatchScore{team1: 1, team2: 0});
+        return Some(MatchScore { team1: 1, team2: 0 });
     }
     if team2 > 8 && team2 > team1 {
-        return Some(MatchScore{team1: 0, team2: 1});
+        return Some(MatchScore { team1: 0, team2: 1 });
     }
     Some(MatchScore { team1, team2 })
 }
@@ -99,8 +99,14 @@ pub fn get_mapscores(h: RichNode) -> Result<Vec<MapScore>, Error> {
     let mut result = Vec::<MapScore>::new();
     for m in h.find("maps").find_all("mapholder") {
         let map = m.find("mapname").inner_text();
-        let team1 = m.find("results-left").find("results-team-score").inner_text();
-        let team2 = m.find("results-right").find("results-team-score").inner_text();
+        let team1 = m
+            .find("results-left")
+            .find("results-team-score")
+            .inner_text();
+        let team2 = m
+            .find("results-right")
+            .find("results-team-score")
+            .inner_text();
         if team1.is_none() || team2.is_none() || map.is_none() {
             continue;
         }
@@ -108,10 +114,16 @@ pub fn get_mapscores(h: RichNode) -> Result<Vec<MapScore>, Error> {
         if map.eq("TBA") || map.eq("-") {
             continue;
         }
-        result.push(MapScore{
+        result.push(MapScore {
             map: map.into(),
-            team1: team1.unwrap().parse().map_err(|_| ConversionError("can't convert 1st team's map score"))?,
-            team2: team2.unwrap().parse().map_err(|_| ConversionError("cant convert 2nd team's map score"))?,
+            team1: team1
+                .unwrap()
+                .parse()
+                .map_err(|_| ConversionError("can't convert 1st team's map score"))?,
+            team2: team2
+                .unwrap()
+                .parse()
+                .map_err(|_| ConversionError("cant convert 2nd team's map score"))?,
         })
     }
     Ok(result)
@@ -123,12 +135,17 @@ pub fn get_matchformat(h: RichNode) -> Result<MatchFormat, Error> {
         3 => Ok(MatchFormat::Bo3),
         5 => Ok(MatchFormat::Bo5),
         7 => Ok(MatchFormat::Bo7),
-        _ => Err(ConversionError("can't determine match format. weird number of maps."))
+        _ => Err(ConversionError(
+            "can't determine match format. weird number of maps.",
+        )),
     }
 }
 
 pub fn get_matchstatus(h: RichNode) -> Result<MatchStatus, Error> {
-    let t = h.find("countdown").inner_text().ok_or(ConversionError("can't find countdown or match status"))?;
+    let t = h
+        .find("countdown")
+        .inner_text()
+        .ok_or(ConversionError("can't find countdown or match status"))?;
     match t.as_ref() {
         "Match over" => Ok(MatchStatus::Finished),
         "LIVE" => Ok(MatchStatus::Live),
@@ -136,7 +153,7 @@ pub fn get_matchstatus(h: RichNode) -> Result<MatchStatus, Error> {
     }
 }
 
-pub fn get_performance(h: RichNode) -> Option<[Performance;10]> {
+pub fn get_performance(h: RichNode) -> Option<[Performance; 10]> {
     let all = h.find("stats-content").find_all("totalstats");
     if all.len() != 2 {
         return None;
@@ -148,7 +165,7 @@ pub fn get_performance(h: RichNode) -> Option<[Performance;10]> {
 }
 
 /// Parse the match performance belonging to a specific team container totalstats table
-fn get_performance_root(h: RichNode) -> Option<[Performance;5]> {
+fn get_performance_root(h: RichNode) -> Option<[Performance; 5]> {
     let mut result: [Performance; 5] = Default::default();
     for i in 0u32..5 {
         let p = h.child(i + 1)?;
@@ -162,16 +179,20 @@ fn get_performance_root(h: RichNode) -> Option<[Performance;5]> {
 /// Get the performance of a specific player in a tr-class
 fn get_performance_player(h: RichNode) -> Option<Performance> {
     // Player
-    let link = h.find("players").find("flagAlign").child(0)?.get_attr_str("href")?;
+    let link = h
+        .find("players")
+        .find("flagAlign")
+        .find("flagAlign")
+        .get_attr_str("href")?;
     let p = Player {
         id: link.split('/').nth(2)?.parse().ok()?,
         nickname: h.find("statsPlayerName").inner_text()?,
     };
-
+    
     // Stats
     let kd = h.find("kd").inner_text()?;
     let kast = h.find("adr").inner_text()?;
-    let s = Stats{
+    let s = Stats {
         kills: kd.split('-').next()?.parse().ok()?,
         deaths: kd.split('-').nth(1)?.parse().ok()?,
         adr: h.find("adr").inner_text()?.parse().ok()?,

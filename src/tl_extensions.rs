@@ -67,12 +67,32 @@ pub struct RichNode<'a> {
 }
 
 impl<'a> RichNode<'a> {
+
+    /// Returns the first child that fulfils the given predicate
+    pub fn find_where(self, f: &dyn Fn(RichNode<'a>) -> bool) -> RichNode<'a>{
+        if self.n.is_none() {
+            return RichNode {d: self.d, n: None};
+        }
+        let n = dfs_first_where(self, f);
+        RichNode{d: self.d, n}
+    }
+
+    fn compare_class(class: &'a str) -> Box<(dyn Fn(RichNode<'a>) -> bool + 'a)> {
+        Box::new(move |n: RichNode| {
+            let x = n.get().unwrap().as_tag();
+            if x.is_none() {
+                return false;
+            }
+            x.unwrap().attributes().is_class_member(class)
+        })
+    }
+
     /// Returns a child with given class.
-    pub fn find(self, class: &str) -> RichNode<'a> {
+    pub fn find(self, class: &'a str) -> RichNode<'a> {
         if self.n.is_none() {
             return RichNode { d: self.d, n: None };
         }
-        let n = self.d.select_first(self.n.unwrap(), class);
+        let n = dfs_first_where(self, &Self::compare_class(class));
         RichNode { d: self.d, n }
     }
     /// Returns all children with given class
@@ -217,6 +237,25 @@ fn dfs_first<'a>(h: NodeHandle, dom: &'a VDom<'a>, class: &str) -> Option<NodeHa
     }
     None
 }
+
+fn dfs_first_where<'a>(h: RichNode<'a>, f: &dyn Fn(RichNode<'a>)->bool) -> Option<NodeHandle> {
+    // break condition
+    if f(h) {
+        return h.n;
+    }
+    // return None when no children
+    let children = h.get().unwrap().children()?;
+
+    // otherwise, iterate over all children
+    for &c in children.top().iter() {
+        let k = c.to_rich(h.d);
+        if let Some(x) = dfs_first_where(k, f) {
+            return Some(x);
+        }
+    }
+    None
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
