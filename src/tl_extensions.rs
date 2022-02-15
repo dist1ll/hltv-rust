@@ -66,34 +66,51 @@ pub struct RichNode<'a> {
     pub n: Option<NodeHandle>,
 }
 
+/*
+ * Comparators
+ */ 
+
+/// Create closure that compares the classes of nodes to the given string
+fn cmp_class<'a>(class: &'a str) -> impl Fn(RichNode<'a>) -> bool {
+    move |n: RichNode| {
+        let x = n.get().unwrap().as_tag();
+        if x.is_none() {
+            return false;
+        }
+        x.unwrap().attributes().is_class_member(class)
+    }
+}
+
+/// Create closure that compares the HTML tags of nodes to the given string
+fn cmp_tag<'a>(tag: &'a str) -> impl Fn(RichNode<'a>) -> bool {
+    move |n: RichNode| {
+        let x = n.get().unwrap().as_tag();
+        if x.is_none() {
+            return false;
+        }
+        x.unwrap().name().eq(tag)
+    }
+}
+
 impl<'a> RichNode<'a> {
 
     /// Returns the first child that fulfils the given predicate
-    pub fn find_where(self, f: &dyn Fn(RichNode<'a>) -> bool) -> RichNode<'a>{
+    pub fn find_where(self, f: impl Fn(RichNode<'a>) -> bool) -> RichNode<'a>{
         if self.n.is_none() {
             return RichNode {d: self.d, n: None};
         }
-        let n = dfs_first_where(self, f);
+        let n = dfs_first_where(self, &f);
         RichNode{d: self.d, n}
-    }
-
-    fn compare_class(class: &'a str) -> Box<(dyn Fn(RichNode<'a>) -> bool + 'a)> {
-        Box::new(move |n: RichNode| {
-            let x = n.get().unwrap().as_tag();
-            if x.is_none() {
-                return false;
-            }
-            x.unwrap().attributes().is_class_member(class)
-        })
     }
 
     /// Returns a child with given class.
     pub fn find(self, class: &'a str) -> RichNode<'a> {
-        if self.n.is_none() {
-            return RichNode { d: self.d, n: None };
-        }
-        let n = dfs_first_where(self, &Self::compare_class(class));
-        RichNode { d: self.d, n }
+        self.find_where(&cmp_class(class))
+    }
+
+    /// Returns the first child with given HTML tag
+    pub fn find_tag(self, tag: &'a str) -> RichNode<'a> {
+        self.find_where(&cmp_tag(tag))
     }
     /// Returns all children with given class
     pub fn find_all(self, class: &str) -> Vec<RichNode<'a>> {
@@ -176,18 +193,13 @@ impl<'a> RichNode<'a> {
 }
 
 pub trait VDomExtension<'a> {
-    /// Return the first node in the subtree of `h` that has the given
-    /// class string.
-    fn select_first(&'a self, h: NodeHandle, class: &str) -> Option<NodeHandle>;
+
     /// Return all nodes in the subtree of `h` that have the given
     /// class string.
     fn select_nodes(&'a self, h: NodeHandle, class: &str) -> Vec<NodeHandle>;
 }
 
 impl<'a> VDomExtension<'a> for VDom<'a> {
-    fn select_first(&'a self, h: NodeHandle, class: &str) -> Option<NodeHandle> {
-        dfs_first(h, self, class)
-    }
     fn select_nodes(&'a self, h: NodeHandle, class: &str) -> Vec<NodeHandle> {
         let mut result = Vec::<NodeHandle>::new();
         dfs(h, self, class, &mut result);
@@ -218,24 +230,6 @@ fn dfs<'a>(h: NodeHandle, dom: &'a VDom<'a>, class: &str, result: &mut Vec<NodeH
     for &c in children.unwrap().top().iter() {
         dfs(c, dom, class, result);
     }
-}
-
-fn dfs_first<'a>(h: NodeHandle, dom: &'a VDom<'a>, class: &str) -> Option<NodeHandle> {
-    // break condition
-    let tag = h.get(dom.parser()).unwrap().as_tag()?;
-    if tag.attributes().is_class_member(class) {
-        return Some(h);
-    }
-    // return None when no children
-    let children = h.get(dom.parser()).unwrap().children()?;
-
-    // otherwise, iterate over all children
-    for &c in children.top().iter() {
-        if let Some(x) = dfs_first(c, dom, class) {
-            return Some(x);
-        }
-    }
-    None
 }
 
 fn dfs_first_where<'a>(h: RichNode<'a>, f: &dyn Fn(RichNode<'a>)->bool) -> Option<NodeHandle> {
@@ -270,10 +264,6 @@ mod tests {
             nodes[0].get(dom.parser()).unwrap().inner_text(dom.parser()),
             "dist1ll"
         );
-        let node = dom.select_first(dom.children()[0], "abc").unwrap();
-        assert_eq!(node.inner_text(dom.parser()).unwrap(), "dist1ll");
-        let nodes = dom.select_nodes(dom.children()[2], "abc");
-        assert_eq!(nodes.len(), 1);
     }
 
     #[test]
@@ -299,6 +289,16 @@ mod tests {
         assert!(n.has_class("first").unwrap());
         assert!(n.has_class("second").unwrap());
         assert!(!n.has_class("third").unwrap());
+    }
+    #[test]
+    pub fn find_tag() {
+        let input = include_str!("./testdata/tl/ext1.html");
+        let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
+        let root = dom.get_element_by_id("find-tag").unwrap().to_rich(&dom);
+        assert!(root.find_tag("a").has_class("link").unwrap());
+        assert!(root.find_tag("img").has_class("image").unwrap());
+        assert!(root.find_tag("table").n.is_some());
+        assert!(root.find_tag("span").n.is_none());
     }
 
     #[test]
