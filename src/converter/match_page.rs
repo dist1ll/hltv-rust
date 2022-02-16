@@ -17,7 +17,7 @@ use crate::{Error, Error::ConversionError};
 impl ConvertInstance for MatchPage {
     fn convert<'a>(d: &'a tl::VDom<'a>) -> Result<MatchPage, Error> {
         let root = get_root(d)?.to_rich(d);
-        Ok(MatchPage{
+        Ok(MatchPage {
             id: get_id(d)?,
             status: get_matchstatus(root)?,
             team1: get_team(root, "team1-gradient"),
@@ -45,7 +45,10 @@ fn get_id(d: &tl::VDom) -> Result<u32, Error> {
         let n = elem.to_rich(d);
         let link = n.get_attr_str("href").unwrap();
         if link.contains("https://www.hltv.org/matches/") {
-            let chunk = link.split('/').nth(4).ok_or(ConversionError("error parsing match link tag"))?;
+            let chunk = link
+                .split('/')
+                .nth(4)
+                .ok_or(ConversionError("error parsing match link tag"))?;
             return chunk.parse().map_err(|_| Error::ParseError);
         }
     }
@@ -135,17 +138,18 @@ pub fn get_mapscores(h: RichNode) -> Result<Vec<MapScore>, Error> {
             continue;
         }
         let map = map.unwrap();
-        if map.eq("TBA") || map.eq("-") {
+        let team1 = team1.unwrap();
+        let team2 = team2.unwrap();
+
+        if map.eq("TBA") || team1.eq("-") || team2.eq("-") {
             continue;
         }
         result.push(MapScore {
             map: map.into(),
             team1: team1
-                .unwrap()
                 .parse()
                 .map_err(|_| ConversionError("can't convert 1st team's map score"))?,
             team2: team2
-                .unwrap()
                 .parse()
                 .map_err(|_| ConversionError("cant convert 2nd team's map score"))?,
         })
@@ -215,7 +219,7 @@ fn get_performance_player(h: RichNode) -> Option<Performance> {
         id: link.split('/').nth(2)?.parse().ok()?,
         nickname: h.find("player-nick").inner_text()?,
     };
-    
+
     // Stats
     let kd = h.find("kd").inner_text()?;
     let kast = h.find("kast").inner_text()?;
