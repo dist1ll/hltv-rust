@@ -44,14 +44,8 @@ async fn concluded_bo3() -> Result<(), Box<dyn Error>> {
         MatchPage {
             id: 2346065,
             status: MatchStatus::Finished,
-            team1: Some(Team {
-                id: 6665,
-                name: "Astralis".to_string()
-            }),
-            team2: Some(Team {
-                id: 9565,
-                name: "Vitality".to_string()
-            }),
+            team1: Some(Team::new(6665, "Astralis".to_string())),
+            team2: Some(Team::new(9565, "Vitality".to_string())),
             event: Event {
                 id: 5206,
                 name: "BLAST Premier Global Final 2020".to_string()
@@ -59,21 +53,9 @@ async fn concluded_bo3() -> Result<(), Box<dyn Error>> {
             date: DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(1611415800, 0), Utc),
             format: MatchFormat::Bo3,
             maps: vec![
-                MapScore {
-                    map: Map::Dust2,
-                    team1: 16,
-                    team2: 14,
-                },
-                MapScore {
-                    map: Map::Overpass,
-                    team1: 10,
-                    team2: 16,
-                },
-                MapScore {
-                    map: Map::Inferno,
-                    team1: 16,
-                    team2: 5,
-                }
+                MapScore::new(Map::Dust2, 16, 14),
+                MapScore::new(Map::Overpass, 10, 16),
+                MapScore::new(Map::Inferno, 16, 5),
             ],
             score: Some(MatchScore { team1: 2, team2: 1 }),
             stats: vec![

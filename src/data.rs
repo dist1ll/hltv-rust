@@ -38,6 +38,12 @@ pub struct Team {
     pub name: String,
 }
 
+impl Team {
+    pub fn new(id: u32, name: String) -> Self {
+        Team { id, name }
+    }
+}
+
 /// Basic information about a team.
 #[derive(Debug, PartialEq)]
 pub struct Event {
@@ -108,7 +114,6 @@ pub struct MatchResult {
     /// Format of a match. For example, if the format is [`Bo1`][MatchFormat::Bo1],
     /// then only one map is played and the result is either a `1-0` or `0-1`.
     pub format: MatchFormat,
-    
 }
 
 /// A general W-L match score
@@ -124,7 +129,7 @@ pub struct Score {
 pub struct MatchPage {
     /// ID of the match
     pub id: u32,
-    /// Status of the match. 
+    /// Status of the match.
     pub status: MatchStatus,
     /// First team, if known.
     pub team1: Option<Team>,
@@ -183,6 +188,12 @@ pub struct MapScore {
     pub team2: u32,
 }
 
+impl MapScore {
+    pub fn new(map: Map, team1: u32, team2: u32) -> Self {
+        MapScore { map, team1, team2 }
+    }
+}
+
 /// A tuple of a specific players map performance.
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Performance(pub Player, pub Stats);
@@ -201,7 +212,6 @@ pub struct Stats {
     /// HLTV 2.0 rating.
     pub rating: f32,
 }
-
 
 /// All CSGO maps that are listed on HLTV
 #[derive(Debug, Default, PartialEq)]
