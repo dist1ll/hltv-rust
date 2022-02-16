@@ -213,12 +213,12 @@ fn get_performance_player(h: RichNode) -> Option<Performance> {
         .get_attr_str("href")?;
     let p = Player {
         id: link.split('/').nth(2)?.parse().ok()?,
-        nickname: h.find("statsPlayerName").inner_text()?,
+        nickname: h.find("player-nick").inner_text()?,
     };
     
     // Stats
     let kd = h.find("kd").inner_text()?;
-    let kast = h.find("adr").inner_text()?;
+    let kast = h.find("kast").inner_text()?;
     let s = Stats {
         kills: kd.split('-').next()?.parse().ok()?,
         deaths: kd.split('-').nth(1)?.parse().ok()?,
