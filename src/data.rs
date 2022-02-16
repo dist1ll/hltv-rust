@@ -145,7 +145,7 @@ pub struct MatchPage {
     /// but the match hasn't fully concluded yet (which can be the case for bo3+).
     pub maps: Vec<MapScore>,
     /// Performance of players over all maps.
-    pub stats: Option<[Performance; 10]>,
+    pub stats: Vec<Performance>,
 }
 
 /// Current status of a match.

@@ -153,27 +153,30 @@ pub fn get_matchstatus(h: RichNode) -> Result<MatchStatus, Error> {
     }
 }
 
-pub fn get_performance(h: RichNode) -> Option<[Performance; 10]> {
+pub fn get_performance(h: RichNode) -> Vec<Performance> {
     let all = h.find("stats-content").find_all("totalstats");
     if all.len() != 2 {
-        return None;
+        return Vec::new();
     }
-    let mut result: [Performance; 10] = Default::default();
-    result[5..10].clone_from_slice(&get_performance_root(all[0])?);
-    result[..5].clone_from_slice(&get_performance_root(all[1])?);
-    Some(result)
+    let mut result = Vec::new();
+    result.append(&mut get_performance_root(all[0]));
+    result.append(&mut get_performance_root(all[1]));
+    result
 }
 
 /// Parse the match performance belonging to a specific team container totalstats table
-fn get_performance_root(h: RichNode) -> Option<[Performance; 5]> {
-    let mut result: [Performance; 5] = Default::default();
-    for i in 0u32..5 {
-        let p = h.child(i + 1)?;
-        println!("index: \t{:?}", i);
-        result[i as usize] = get_performance_player(p)?;
-        println!("{:?}", result[i as usize]);
+fn get_performance_root(h: RichNode) -> Vec<Performance> {
+    let mut result = Vec::new();
+    for i in 0u32..6 {
+        let p = h.child(i + 1);
+        if p.is_none() {
+            continue;
+        }
+        if let Some(perf) = get_performance_player(p.unwrap()) {
+            result.push(perf);
+        }
     }
-    Some(result)
+    result
 }
 
 /// Get the performance of a specific player in a tr-class
@@ -182,7 +185,7 @@ fn get_performance_player(h: RichNode) -> Option<Performance> {
     let link = h
         .find("players")
         .find("flagAlign")
-        .find("flagAlign")
+        .find_tag("a")
         .get_attr_str("href")?;
     let p = Player {
         id: link.split('/').nth(2)?.parse().ok()?,
