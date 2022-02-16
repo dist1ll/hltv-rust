@@ -7,6 +7,16 @@ async fn wait() {
     tokio::time::sleep(Duration::from_millis(1500)).await;
 }
 
+/// Testing if specific matches are parsed without throwing errors
+#[tokio::test]
+async fn get_match() -> Result<(), Box<dyn Error>> {
+    wait().await;
+    let req = hltv::get_match(2346065);
+    let res = req.fetch().await?;
+    println!("{:?}", res);
+    Ok(())
+}
+
 /// Testing if upcoming matches are correctly parsed.
 #[tokio::test]
 async fn upcoming_matches() -> Result<(), Box<dyn Error>> {

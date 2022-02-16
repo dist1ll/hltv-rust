@@ -20,8 +20,8 @@ impl ConvertInstance for MatchPage {
         Ok(MatchPage{
             id: get_id(d)?,
             status: get_matchstatus(root)?,
-            team1: get_team(root, "team1"),
-            team2: get_team(root, "team2"),
+            team1: get_team(root, "team1-gradient"),
+            team2: get_team(root, "team2-gradient"),
             event: get_event(root)?,
             date: get_date(root)?,
             format: get_matchformat(root)?,

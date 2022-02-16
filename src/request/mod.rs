@@ -4,6 +4,7 @@ use std::marker::PhantomData;
 
 pub mod results;
 pub mod upcoming;
+pub mod match_page;
 
 const HLTV_ROOT: &str = "https://www.hltv.org/";
 

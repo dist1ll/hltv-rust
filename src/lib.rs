@@ -52,6 +52,7 @@ mod tl_extensions;
 pub mod request;
 pub use request::upcoming::upcoming;
 pub use request::results::results;
+pub use request::match_page::get_match;
 
 /// Implements a conversion from a DOM object to a collection of its own type.
 pub trait ConvertCollection
