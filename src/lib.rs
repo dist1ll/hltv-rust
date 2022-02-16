@@ -7,12 +7,15 @@
 
 This crate allows you to fetch and parse upcoming matches, results,
 event information, player performance. This crate uses async calls via [`reqwest`]
-and parses the HTML document with [`tl`].
+and parses the HTML document with [`tl`]. This API mimics the way you discover 
+information on HLTV. Summary pages (like [HLTV Matches](https://www.hltv.org/matches))
+contains less information in the HTML document than the detailed match-specific page.
 
 Currently, the following API calls are supported:
 
 - [`crate::upcoming`]
 - [`crate::results`]
+- [`crate::get_match`]
 
 ## Examples
 
@@ -32,10 +35,25 @@ async fn results() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 ```
-## Getting more detailed information
+## More examples
 
-This API mimics the way you discover information on HLTV. Summary pages (like [HLTV Matches](https://www.hltv.org/matches))
-contains less information in the HTML document than the detailed match-specific page.
+### Find out if specific match is live
+
+```rust
+# #[tokio::test]
+# async fn results() -> Result<(), Box<dyn Error>> {
+    let req = hltv::get_match(2346065);
+    let m = req.fetch().await?;
+    if m.status == hltv::data::MatchStatus::Live {
+        println!("match with id:[{}] is live!", m.id);
+    }
+# }
+```
+
+### Get all upcoming matches for a team
+```
+
+```
 
 */
 #![allow(dead_code)]
