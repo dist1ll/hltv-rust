@@ -17,7 +17,18 @@ use crate::{Error, Error::ConversionError};
 impl ConvertInstance for MatchPage {
     fn convert<'a>(d: &'a tl::VDom<'a>) -> Result<MatchPage, Error> {
         let root = get_root(d)?.to_rich(d);
-        Err(Error::ParseError)
+        Ok(MatchPage{
+            id: get_id(d)?,
+            status: get_matchstatus(root)?,
+            team1: get_team(root, "team1"),
+            team2: get_team(root, "team2"),
+            event: get_event(root)?,
+            date: get_date(root)?,
+            format: get_matchformat(root)?,
+            score: get_score(root),
+            maps: get_mapscores(root)?,
+            stats: get_performance(root),
+        })
     }
 }
 
@@ -26,6 +37,19 @@ fn get_root(d: &tl::VDom) -> Result<NodeHandle, Error> {
         .unwrap()
         .next()
         .ok_or(ConversionError("no root node match-page found"))
+}
+
+/// Returns the match ID
+fn get_id(d: &tl::VDom) -> Result<u32, Error> {
+    for elem in d.query_selector("link[href]").unwrap() {
+        let n = elem.to_rich(d);
+        let link = n.get_attr_str("href").unwrap();
+        if link.contains("https://www.hltv.org/matches/") {
+            let chunk = link.split('/').nth(4).ok_or(ConversionError("error parsing match link tag"))?;
+            return chunk.parse().map_err(|_| Error::ParseError);
+        }
+    }
+    Err(ConversionError("couldn't find link tag with match ID"))
 }
 
 /// Returns the team information, given the appropriate root match-page element.
@@ -209,18 +233,12 @@ fn get_performance_player(h: RichNode) -> Option<Performance> {
 mod tests {
     use super::*;
 
-    #[test]
-    pub fn xyz() {
-        let input = include_str!("../testdata/matchPages/finished_bo3.html");
-        let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
-        let root = get_root(&dom).unwrap().to_rich(&dom);
-        println!("{:?}", get_performance(root));
-    }
     /// Tests if a finished bo3 match is correctly parsed.
     #[test]
     pub fn concluded_bo3() {
         let input = include_str!("../testdata/matchPages/finished_bo3.html");
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
-        // let result = MatchPage::convert(&dom).unwrap();
+        let result = MatchPage::convert(&dom).unwrap();
+        println!("{:?}", result);
     }
 }
