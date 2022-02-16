@@ -12,8 +12,7 @@ async fn wait() {
 async fn get_match() -> Result<(), Box<dyn Error>> {
     wait().await;
     let req = hltv::get_match(2346065);
-    let res = req.fetch().await?;
-    println!("{:?}", res);
+    req.fetch().await?;
     Ok(())
 }
 

@@ -39,7 +39,7 @@ pub struct Team {
 }
 
 /// Basic information about a team.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Event {
     /// HLTV-associated ID (found in the URL of the event page).
     pub id: u32,
@@ -120,7 +120,7 @@ pub struct Score {
 
 /// Contains detailed information about a match. Corresponds to data found on [HLTV's
 /// match page](https://www.hltv.org/matches/2239492/nip-vs-virtuspro-sltv-starseries-v-finals).
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct MatchPage {
     /// ID of the match
     pub id: u32,
@@ -149,7 +149,7 @@ pub struct MatchPage {
 }
 
 /// Current status of a match.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum MatchStatus {
     Upcoming,
     Finished,
@@ -167,14 +167,14 @@ pub enum WhichTeam {
 
 /// A match score refers to the number of won maps of both team 1 and team 2.
 /// Examples are `1-0`, `2-1`, `1-3`, etc.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct MatchScore {
     pub team1: u32,
     pub team2: u32,
 }
 
 /// Represents the result of a single map. Examples are: `16-14`, `10-16`, `19-17`
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct MapScore {
     pub map: Map,
     /// Number of rounds won by team 1.
@@ -184,11 +184,11 @@ pub struct MapScore {
 }
 
 /// A tuple of a specific players map performance.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, PartialEq, Clone)]
 pub struct Performance(pub Player, pub Stats);
 
 /// Collection of performance metrics of a player.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, PartialEq, Clone)]
 pub struct Stats {
     /// Total kills.
     pub kills: u32,
@@ -204,7 +204,7 @@ pub struct Stats {
 
 
 /// All CSGO maps that are listed on HLTV
-#[derive(Debug, Default)]
+#[derive(Debug, Default, PartialEq)]
 pub enum Map {
     #[default]
     Unknown,
