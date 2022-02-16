@@ -5,7 +5,7 @@ use std::error::Error;
 use std::time::Duration;
 
 async fn wait() {
-    tokio::time::sleep(Duration::from_millis(1500)).await;
+    tokio::time::sleep(Duration::from_millis(1000)).await;
 }
 
 /// Convenient constructor for Performance
@@ -23,6 +23,14 @@ fn perf(id: u32, s: (u32, u32, f32, f32, f32), name: &str) -> Performance {
             rating: s.4,
         },
     )
+}
+
+/// Ad-hoc testing method for LIVE matches.
+#[tokio::test]
+async fn ad_hoc() -> Result<(), Box<dyn Error>> {
+    let res = hltv::get_match(2354349).fetch().await?;
+    println!("{:?}", res);
+    Ok(())
 }
 
 /// Testing if specific matches are parsed without throwing errors
@@ -84,5 +92,20 @@ async fn concluded_bo3() -> Result<(), Box<dyn Error>> {
         }
     );
 
+    Ok(())
+}
+
+/// Testing if specific matches are parsed without throwing errors
+#[tokio::test]
+async fn unknown_upcoming() -> Result<(), Box<dyn Error>> {
+    wait().await;
+    let upc = hltv::upcoming().build().fetch().await?;
+    let res = upc.last().unwrap();
+    wait().await;
+    let m = hltv::get_match(res.id).fetch().await?;
+    assert_eq!(m.maps, Vec::new());
+    assert_eq!(m.stats, Vec::new());
+    assert_eq!(m.score, None);
+    assert_eq!(m.status, MatchStatus::Upcoming);
     Ok(())
 }
