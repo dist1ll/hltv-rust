@@ -69,6 +69,7 @@ pub struct EventDetails {
 }
 
 /// Contains extensive information about a team.
+#[derive(Debug)]
 pub struct TeamPage {
     /// Team ID according to HLTV team page URL.
     pub id: u32,
