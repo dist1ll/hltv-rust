@@ -69,10 +69,16 @@ pub struct EventDetails {
 }
 
 /// Contains extensive information about a team.
-pub struct TeamDetails {
+pub struct TeamPage {
+    /// Team ID according to HLTV team page URL.
     pub id: u32,
+    /// Name of the team.
     pub name: String,
-    pub players: [Player; 5],
+    /// All known players of the team. Can be less than five, or even more than five (in the case
+    /// of 6-man rosters).
+    pub players: Vec<Player>,
+    /// URL of the logo (hltv cdn).
+    pub logo: String,
 }
 
 /// Contains a summary of an upcoming match ([reference](https://www.hltv.org/matches)).
