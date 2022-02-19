@@ -15,7 +15,7 @@ impl ConvertInstance for TeamPage {
             id: 5,
             name: "navi".to_string(),
             players: get_players(root)?,
-            logo: "logo".to_string(),
+            logo: get_logo(root)?,
         })
     }
 }
@@ -25,6 +25,14 @@ fn get_root(d: &tl::VDom) -> Result<NodeHandle, Error> {
         .unwrap()
         .next()
         .ok_or(ConversionError("no teamProfile node found"))
+}
+
+/// Returns the team's logo url. 
+fn get_logo(h: RichNode) -> Result<String, Error> {
+    h.find("profile-team-logo-container")
+        .find("teamlogo")
+        .get_attr_str("src")
+        .ok_or(ConversionError("couldn't find logo container or logo"))
 }
 
 /// Returns a collection of players in this team. Does not collect players who
@@ -45,8 +53,9 @@ fn get_players(h: RichNode) -> Result<Vec<Player>, Error> {
             .split('/')
             .nth(2)
             .ok_or(ConversionError("href of player link has incorrect format"))?
-            .parse().map_err(|_| ConversionError("href player id is not a number"))?;
-        result.push(Player{id, nickname});
+            .parse()
+            .map_err(|_| ConversionError("href player id is not a number"))?;
+        result.push(Player { id, nickname });
     }
     Ok(result)
 }
