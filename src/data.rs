@@ -75,6 +75,8 @@ pub struct TeamPage {
     pub id: u32,
     /// Name of the team.
     pub name: String,
+    /// HLTV ranking of this team.
+    pub ranking: u32,
     /// All known players of the team. Can be less than five, or even more than five (in the case
     /// of 6-man rosters).
     pub players: Vec<Player>,

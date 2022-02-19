@@ -14,6 +14,7 @@ impl ConvertInstance for TeamPage {
         Ok(TeamPage {
             id: 5,
             name: "navi".to_string(),
+            ranking: get_team_rank(root)?,
             players: get_players(root)?,
             logo: get_logo(root)?,
         })
@@ -27,7 +28,7 @@ fn get_root(d: &tl::VDom) -> Result<NodeHandle, Error> {
         .ok_or(ConversionError("no teamProfile node found"))
 }
 
-/// Returns the team's logo url. 
+/// Returns the team's logo url.
 fn get_logo(h: RichNode) -> Result<String, Error> {
     h.find("profile-team-logo-container")
         .find("teamlogo")
@@ -35,6 +36,20 @@ fn get_logo(h: RichNode) -> Result<String, Error> {
         .ok_or(ConversionError("couldn't find logo container or logo"))
 }
 
+/// Returns the hltv team ranking
+fn get_team_rank(h: RichNode) -> Result<u32, Error> {
+    let rank_txt = h
+        .find("profile-team-stats-container")
+        .find("right")
+        .find_tag("a")
+        .inner_text()
+        .ok_or(ConversionError("couldn't find hltv ranking text container"))?;
+
+    match rank_txt[1..rank_txt.len()].parse::<u32>() {
+        Ok(number) => Ok(number),
+        Err(_) => Err(ConversionError("couldn't parse hltv ranking")),
+    }
+}
 /// Returns a collection of players in this team. Does not collect players who
 /// have invalid hltv profile link, id or name.
 fn get_players(h: RichNode) -> Result<Vec<Player>, Error> {
