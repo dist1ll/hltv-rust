@@ -118,7 +118,7 @@ where
     /// Returns an error if the resource is not reachable.
     /// If you want to create a custom data structure that can be fetched
     /// and read from HLTV, refer to the [`converter`] module.
-    pub async fn fetch(&self) -> Result<T, Box<dyn std::error::Error>> {
+    pub async fn fetch(&self) -> Result<T, Error> {
         let html = reqwest::get(self.url.clone()).await?.text().await?;
         let vdom = tl::parse(&html, tl::ParserOptions::default())?;
         let x = T::convert(&vdom)?;
@@ -135,6 +135,18 @@ pub enum Error {
     ParseError,
     /// Parsed document can't be converted into target type.
     ConversionError(&'static str),
+}
+
+impl From<reqwest::Error> for Error {
+    fn from(_: reqwest::Error) -> Self {
+        Error::HTTPError
+    }
+}
+
+impl From<tl::ParseError> for Error {
+    fn from(_: tl::ParseError) -> Self {
+        Error::ParseError
+    }
 }
 
 impl std::error::Error for Error {}

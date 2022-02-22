@@ -50,6 +50,7 @@ fn get_team_rank(h: RichNode) -> Result<u32, Error> {
         Err(_) => Err(ConversionError("couldn't parse hltv ranking")),
     }
 }
+
 /// Returns a collection of players in this team. Does not collect players who
 /// have invalid hltv profile link, id or name.
 fn get_players(h: RichNode) -> Result<Vec<Player>, Error> {

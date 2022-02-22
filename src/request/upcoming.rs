@@ -2,7 +2,7 @@ use crate::request::*;
 
 /// Request builder for upcoming matches
 #[derive(Default)]
-pub struct UpcomingRB {
+pub struct UpcomingRequestBuilder {
     top_tier: bool,
     events: Vec<u32>,
     event_filter: EventTypeFilter,
@@ -26,13 +26,13 @@ pub struct UpcomingRB {
 ///     .top_tier()
 ///     .build();
 /// ```
-pub fn upcoming() -> UpcomingRB {
-    UpcomingRB::default()
+pub fn upcoming() -> UpcomingRequestBuilder {
+    UpcomingRequestBuilder::default()
 }
 
 /// Here you can find all builder methods to specify which upcoming matches you want to
 /// fetch.
-impl UpcomingRB {
+impl UpcomingRequestBuilder {
     #[must_use]
     pub fn top_tier(mut self) -> Self {
         self.top_tier = true;

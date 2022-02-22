@@ -3,7 +3,7 @@ use crate::request::*;
 
 /// Request builder for match results.
 #[derive(Default)]
-pub struct ResultRB {
+pub struct ResultsRequestBuilder {
     stars: u32,
     from: String,
     to: String,
@@ -43,13 +43,13 @@ pub struct ResultRB {
 ///     .build();
 
 /// ```
-pub fn results() -> ResultRB {
-    ResultRB::default()
+pub fn results() -> ResultsRequestBuilder {
+    ResultsRequestBuilder::default()
 }
 
 /// Here you can find all builder methods to specify which match results you want to
 /// fetch. 
-impl ResultRB {
+impl ResultsRequestBuilder {
     #[must_use]
     pub fn stars(mut self, stars: u32) -> Self {
         self.stars = stars;
