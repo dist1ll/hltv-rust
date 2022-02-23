@@ -23,7 +23,7 @@ The builders in `hltv` allow you to build a generic [`Request`] object with a [`
 
 ```rust
 #[tokio::test]
-async fn results() -> Result<(), Box<dyn Error>> {
+async fn results() -> Result<(), hltv::Error> {
     let req = hltv::results()
         .map(Map::Inferno)
         .team(4608) // Team Na'Vi
@@ -41,7 +41,7 @@ async fn results() -> Result<(), Box<dyn Error>> {
 
 ```rust
 # #[tokio::test]
-# async fn results() -> Result<(), Box<dyn Error>> {
+# async fn results() -> Result<(), hltv::Error> {
     let req = hltv::get_match(2346065);
     let m = req.fetch().await?;
     if m.status == hltv::data::MatchStatus::Live {
@@ -99,7 +99,9 @@ pub struct Request<T>
 where
     T: ConvertInstance,
 {
+    /// Target url that the request will fetch.
     url: String,
+    /// This PhantomData is used to maintain type information without dynamic dispatch.
     _m: PhantomData<T>,
 }
 

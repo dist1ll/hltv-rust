@@ -21,6 +21,7 @@ impl ConvertInstance for TeamPage {
     }
 }
 
+/// Returns the relevant root node.
 fn get_root(d: &tl::VDom) -> Result<NodeHandle, Error> {
     d.query_selector("div.teamProfile")
         .unwrap()

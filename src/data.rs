@@ -138,7 +138,9 @@ pub struct MatchResult {
 /// A general W-L match score
 #[derive(Debug, PartialEq)]
 pub struct Score {
+    /// Number of maps or rounds of the winner. (Maps for bo3, rounds for bo1).
     pub score_won: u32,
+    /// Number of maps or rounds of the loset. (Maps for bo3, rounds for bo1).
     pub score_lost: u32,
 }
 
@@ -175,8 +177,11 @@ pub struct MatchPage {
 /// Current status of a match.
 #[derive(Debug, PartialEq)]
 pub enum MatchStatus {
+    /// Match hasn't started yet. Teams might not be known.
     Upcoming,
+    /// Match has concluded and the Results have been determined. 
     Finished,
+    /// Match is ongoing. Partial results may exist. Teams are known.
     Live,
 }
 
@@ -185,7 +190,9 @@ pub enum MatchStatus {
 pub enum WhichTeam {
     #[default]
     None,
+    /// The left team, according to hltv match page.
     First,
+    /// The right team, according to hltv match page.
     Second,
 }
 
@@ -193,7 +200,9 @@ pub enum WhichTeam {
 /// Examples are `1-0`, `2-1`, `1-3`, etc.
 #[derive(Debug, PartialEq)]
 pub struct MatchScore {
+    /// The number of maps won by the left team.
     pub team1: u32,
+    /// The number of maps won by the right team.
     pub team2: u32,
 }
 
