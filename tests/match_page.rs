@@ -44,8 +44,8 @@ async fn concluded_bo3() -> Result<(), Box<dyn Error>> {
         MatchPage {
             id: 2346065,
             status: MatchStatus::Finished,
-            team1: Some(Team::new(6665, "Astralis", "", None)),
-            team2: Some(Team::new(9565, "Vitality", "", None)),
+            team1: Some(Team::new(6665, "Astralis", "https://img-cdn.hltv.org/teamlogo/9bgXHp-oh1oaXr7F0mTGmd.svg?ixlib=java-2.1.0&amp;s=f567161ab183001be33948b98c4b2067", None)),
+            team2: Some(Team::new(9565, "Vitality", "https://img-cdn.hltv.org/teamlogo/GAlByJtDTnkgbb9p_71SUL.png?ixlib=java-2.1.0&amp;w=100&amp;s=ddc5952ae492cbefb10fbe64471486b5", None)),
             event: Event {
                 id: 5206,
                 name: "BLAST Premier Global Final 2020".to_string()

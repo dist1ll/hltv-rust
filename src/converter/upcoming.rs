@@ -33,7 +33,7 @@ fn parse_team(h: RichNode, team_id: &str) -> Option<Team> {
     Some(Team {
         id: h.get_attr(team_id).unwrap_or(None)?,
         name: h.find(team_id).find("matchTeamName").inner_text()?,
-        logo: "".to_string(),
+        logo: h.find(team_id).find("matchTeamLogo").get_attr_str("src")?,
         alt_logo: None,
     })
 }
@@ -103,14 +103,15 @@ mod tests {
         // test team data
         assert_eq!(
             *result[0].team1.as_ref().unwrap(),
-            Team::new(6667, "FaZe", "", None),
+            Team::new(6667, "FaZe", "imglink-faze", None),
         );
         assert_eq!(
             *result[0].team2.as_ref().unwrap(),
-            Team::new(5973, "Liquid", "", None),
+            Team::new(5973, "Liquid", "imglink-liquid", None),
         );
         // test match ID
         assert_eq!(result[0].id, 2353980);
         assert_eq!(result[1].id, 2353979);
     }
+
 }

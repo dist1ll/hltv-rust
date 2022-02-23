@@ -67,7 +67,7 @@ fn get_team(root: RichNode, class: &str) -> Option<Team> {
             .parse()
             .ok()?,
         name: t.find("teamName").inner_text()?,
-        logo: "".to_string(),
+        logo: t.find("logo").get_attr_str("src")?,
         alt_logo: None,
     })
 }
@@ -238,6 +238,7 @@ fn get_performance_player(h: RichNode) -> Option<Performance> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use pretty_assertions::assert_eq;
 
     /// Tests if a finished bo3 match is correctly parsed.
     #[test]
@@ -245,6 +246,7 @@ mod tests {
         let input = include_str!("../testdata/matchPages/finished_bo3.html");
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
         let result = MatchPage::convert(&dom).unwrap();
-        println!("{:?}", result);
+        assert_eq!(result.team1.unwrap().logo, "imglink-astralis");
+        assert_eq!(result.team2.unwrap().logo, "imglink-vitality");
     }
 }
