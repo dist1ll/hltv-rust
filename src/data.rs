@@ -36,11 +36,21 @@ pub struct Team {
     pub id: u32,
     /// Name of the team.
     pub name: String,
+    /// Link to the team logo
+    pub logo: String,
+    /// Link to the alternative logo for dark backgrounds. Not all Teams
+    /// have or need an alternative logo.
+    pub alt_logo: Option<String>,
 }
 
 impl Team {
-    pub fn new(id: u32, name: String) -> Self {
-        Team { id, name }
+    pub fn new(id: u32, name: &str, logo: &str, alt_logo: Option<String>) -> Self {
+        Team {
+            id,
+            name: name.to_string(),
+            logo: logo.to_string(),
+            alt_logo,
+        }
     }
 }
 

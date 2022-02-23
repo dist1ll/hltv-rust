@@ -44,8 +44,8 @@ async fn concluded_bo3() -> Result<(), Box<dyn Error>> {
         MatchPage {
             id: 2346065,
             status: MatchStatus::Finished,
-            team1: Some(Team::new(6665, "Astralis".to_string())),
-            team2: Some(Team::new(9565, "Vitality".to_string())),
+            team1: Some(Team::new(6665, "Astralis", "", None)),
+            team2: Some(Team::new(9565, "Vitality", "", None)),
             event: Event {
                 id: 5206,
                 name: "BLAST Premier Global Final 2020".to_string()
