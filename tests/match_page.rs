@@ -33,6 +33,18 @@ async fn ad_hoc() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+/// Ad-hoc testing method for LIVE matches.
+#[tokio::test]
+async fn alt_logo() -> Result<(), Box<dyn Error>> {
+    let res = hltv::get_match(2353990).fetch().await?;
+    let team2 = res.team2.unwrap();
+    // only BIG has an alt version logo
+    assert!(res.team1.unwrap().alt_logo.is_none());
+    assert!(team2.alt_logo.is_some());
+    println!("BIG's alternative logo link: {:?}", team2.alt_logo.unwrap());
+    Ok(())
+}
+
 /// Testing if specific matches are parsed without throwing errors
 #[tokio::test]
 async fn concluded_bo3() -> Result<(), Box<dyn Error>> {
@@ -76,6 +88,7 @@ async fn concluded_bo3() -> Result<(), Box<dyn Error>> {
 
     Ok(())
 }
+
 
 /// Testing if specific matches are parsed without throwing errors
 #[tokio::test]

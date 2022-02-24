@@ -68,7 +68,7 @@ fn get_team(root: RichNode, class: &str) -> Option<Team> {
             .ok()?,
         name: t.find("teamName").inner_text()?,
         logo: t.find("logo").get_attr_str("src")?,
-        alt_logo: None,
+        alt_logo: t.find("night-only").get_attr_str("src"),
     })
 }
 
@@ -246,7 +246,11 @@ mod tests {
         let input = include_str!("../testdata/matchPages/finished_bo3.html");
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
         let result = MatchPage::convert(&dom).unwrap();
-        assert_eq!(result.team1.unwrap().logo, "imglink-astralis");
-        assert_eq!(result.team2.unwrap().logo, "imglink-vitality");
+        let t1 = result.team1.unwrap();
+        let t2 = result.team2.unwrap();
+        assert_eq!(t1.logo, "imglink-astralis");
+        assert_eq!(t2.logo, "imglink-vitality");
+        assert_eq!(t1.alt_logo.unwrap(), "imglink-astralis-night");
+        assert_eq!(t2.alt_logo, None);
     }
 }

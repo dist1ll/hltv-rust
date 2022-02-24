@@ -30,11 +30,12 @@ impl ConvertInstance for Vec<UpcomingMatch> {
 /// Returns a Team contained in the NodeHandle. Use tag `"team1"` or `"team2"`
 /// to search for either.
 fn parse_team(h: RichNode, team_id: &str) -> Option<Team> {
+    let t = h.find(team_id);
     Some(Team {
         id: h.get_attr(team_id).unwrap_or(None)?,
-        name: h.find(team_id).find("matchTeamName").inner_text()?,
-        logo: h.find(team_id).find("matchTeamLogo").get_attr_str("src")?,
-        alt_logo: None,
+        name: t.find("matchTeamName").inner_text()?,
+        logo: t.find("matchTeamLogo").get_attr_str("src")?,
+        alt_logo: t.find("night-only").get_attr_str("src"),
     })
 }
 
@@ -93,7 +94,7 @@ mod tests {
 
     /// Tests if the converter parses player info from a match page correctly.
     #[test]
-    pub fn matches() {
+    pub fn upcoming_matches() {
         let input = include_str!("../testdata/matches.html");
         let dom = tl::parse(input, tl::ParserOptions::default()).unwrap();
         let result: Vec<UpcomingMatch> = Vec::convert(&dom).unwrap();
@@ -103,7 +104,7 @@ mod tests {
         // test team data
         assert_eq!(
             *result[0].team1.as_ref().unwrap(),
-            Team::new(6667, "FaZe", "imglink-faze", None),
+            Team::new(6667, "FaZe", "imglink-faze", Some("imglink-faze-night".to_string())),
         );
         assert_eq!(
             *result[0].team2.as_ref().unwrap(),
