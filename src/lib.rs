@@ -56,7 +56,6 @@ async fn results() -> Result<(), hltv::Error> {
 ```
 
 */
-#![allow(dead_code)]
 #![feature(derive_default_enum)]
 
 use std::marker::PhantomData;
