@@ -56,8 +56,6 @@ async fn results() -> Result<(), hltv::Error> {
 ```
 
 */
-#![feature(derive_default_enum)]
-
 use std::marker::PhantomData;
 
 pub mod converter;
