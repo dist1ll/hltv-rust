@@ -8,9 +8,8 @@ use crate::{Error, Error::ConversionError};
 impl ConvertInstance for Vec<MatchResult> {
     fn convert<'a>(d: &'a tl::VDom<'a>) -> Result<Vec<MatchResult>, Error> {
         let mut result = Vec::<MatchResult>::new();
-        let match_containers = get_roots(d);
-        for c in match_containers {
-            let h = c.to_rich(d);
+        let match_containers = d.query_selector("div.results-all").unwrap().next().unwrap();
+        for h in match_containers.to_rich(d).find_all("result-con") {
             result.push(MatchResult {
                 id: parse_id(h)?,
                 winner: parse_which(h)?,
