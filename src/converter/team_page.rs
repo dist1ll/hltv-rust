@@ -33,7 +33,7 @@ fn get_root(d: &tl::VDom) -> Result<NodeHandle, Error> {
 fn get_logo(h: RichNode) -> Result<String, Error> {
     h.find("profile-team-logo-container")
         .find("teamlogo")
-        .get_attr_str("src")
+        .get_attr_str_esc("src")
         .ok_or(ConversionError("couldn't find logo container or logo"))
 }
 

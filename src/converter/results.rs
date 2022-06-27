@@ -1,5 +1,3 @@
-use tl::queryselector::QuerySelectorIterator;
-
 use crate::data::*;
 use crate::tl_extensions::*;
 use crate::ConvertInstance;
@@ -8,7 +6,11 @@ use crate::{Error, Error::ConversionError};
 impl ConvertInstance for Vec<MatchResult> {
     fn convert<'a>(d: &'a tl::VDom<'a>) -> Result<Vec<MatchResult>, Error> {
         let mut result = Vec::<MatchResult>::new();
-        let match_containers = d.query_selector("div.results-all").unwrap().next().unwrap();
+        let match_containers = d
+            .query_selector("div.results-all")
+            .unwrap()
+            .next()
+            .ok_or(ConversionError("no div.results-all container found"))?;
         for h in match_containers.to_rich(d).find_all("result-con") {
             result.push(MatchResult {
                 id: parse_id(h)?,
@@ -22,12 +24,6 @@ impl ConvertInstance for Vec<MatchResult> {
         }
         Ok(result)
     }
-}
-
-/// Returns the an iterator over roots of interest (i.e. the containers of
-/// results).
-fn get_roots<'a>(d: &'a tl::VDom<'a>) -> QuerySelectorIterator<tl::VDom> {
-    d.query_selector("div.result-con").unwrap()
 }
 
 fn parse_format(h: RichNode) -> Result<MatchFormat, Error> {
@@ -137,5 +133,4 @@ mod tests {
             }
         );
     }
-
 }

@@ -67,8 +67,8 @@ fn get_team(root: RichNode, class: &str) -> Option<Team> {
             .parse()
             .ok()?,
         name: t.find("teamName").inner_text()?,
-        logo: t.find("logo").get_attr_str("src")?,
-        alt_logo: t.find("night-only").get_attr_str("src"),
+        logo: t.find("logo").get_attr_str_esc("src")?,
+        alt_logo: t.find("night-only").get_attr_str_esc("src"),
     })
 }
 

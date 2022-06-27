@@ -145,6 +145,13 @@ impl<'a> RichNode<'a> {
         Some(result.as_utf8_str().to_string())
     }
 
+    /// Get attribute as unescaped HTML string
+    pub fn get_attr_str_esc(&self, attr: &str) -> Option<String> {
+        let result = self.get_attr_str(attr)?;
+        let result = html_escape::decode_html_entities(&result);
+        Some(result.to_string())
+    }
+
     pub fn get_attr<T>(&self, attr: &str) -> Result<Option<T>, Error>
     where
         T: FromStr,

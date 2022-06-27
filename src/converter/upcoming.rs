@@ -34,8 +34,8 @@ fn parse_team(h: RichNode, team_id: &str) -> Option<Team> {
     Some(Team {
         id: h.get_attr(team_id).unwrap_or(None)?,
         name: t.find("matchTeamName").inner_text()?,
-        logo: t.find("matchTeamLogo").get_attr_str("src")?,
-        alt_logo: t.find("night-only").get_attr_str("src"),
+        logo: t.find("matchTeamLogo").get_attr_str_esc("src")?,
+        alt_logo: t.find("night-only").get_attr_str_esc("src"),
     })
 }
 

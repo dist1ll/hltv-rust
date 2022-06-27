@@ -1,6 +1,6 @@
 [package]
 name = "hltv"
-version = "0.3.1"
+version = "0.3.2"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 description = "A client to fetch and parse data from HLTV.org"
@@ -18,6 +18,7 @@ doctest = false
 reqwest = "0.11.9"
 chrono = "0.4.19"
 tl = "0.6.2"
+html-escape = "0.2.11"
 
 [dev-dependencies]
 tokio = { version = "1.16.1", features = ["macros", "time"] }
