@@ -1,6 +1,6 @@
 /*!
 
-[Documentation](https://docs.rs/hltv/latest/hltv/) | [Crates.io](https://crates.io/crates/hltv) | [Repository](https://github.com/dist1ll/hltv-rust)
+[Documentation](https://docs.rs/hltv/latest/hltv/) | [Crates.io](https://crates.io/crates/hltv) | [Repository](https://foss.alic.dev/dist1ll/hltv-rust)
 
 **A crate for fetching and parsing esports data from [HLTV.org](https://www.hltv.org).**
 
